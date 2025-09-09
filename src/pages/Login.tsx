@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Wifi, WifiOff } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,9 +11,32 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [serverStatus, setServerStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Verificar estado del servidor
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://rendimiento-inmobiliaria-production.up.railway.app/api'}/health`, {
+          method: 'GET',
+          mode: 'cors',
+        });
+        if (response.ok) {
+          setServerStatus('online');
+        } else {
+          setServerStatus('offline');
+        }
+      } catch (error) {
+        console.error('Error verificando servidor:', error);
+        setServerStatus('offline');
+      }
+    };
+
+    checkServerStatus();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +149,28 @@ const Login: React.FC = () => {
               </div>
             </div>
 
+            {/* Indicador de estado del servidor */}
+            <div className="flex items-center justify-center space-x-2 text-sm">
+              {serverStatus === 'checking' && (
+                <div className="flex items-center text-gray-500">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                  Verificando servidor...
+                </div>
+              )}
+              {serverStatus === 'online' && (
+                <div className="flex items-center text-green-600">
+                  <Wifi className="h-4 w-4 mr-2" />
+                  Servidor conectado
+                </div>
+              )}
+              {serverStatus === 'offline' && (
+                <div className="flex items-center text-red-600">
+                  <WifiOff className="h-4 w-4 mr-2" />
+                  Servidor no disponible
+                </div>
+              )}
+            </div>
+
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -136,7 +181,7 @@ const Login: React.FC = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || serverStatus === 'offline'}
                 className="w-full text-white py-3 px-6 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#240046] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 style={{ backgroundColor: '#240046' }}
                 onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#1a0033'}

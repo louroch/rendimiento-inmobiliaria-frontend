@@ -1,16 +1,9 @@
 import axios from 'axios';
+import getApiConfig from '../config/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 
-  (process.env.NODE_ENV === 'production' 
-    ? 'https://rendimiento-inmobiliaria-production.up.railway.app/api' 
-    : 'http://localhost:5000/api');
+const config = getApiConfig();
 
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+export const api = axios.create(config);
 
 // Interceptor para agregar token a las peticiones
 api.interceptors.request.use(
@@ -30,10 +23,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('Error en petición API:', error);
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
+    } else if (error.code === 'ERR_NETWORK_CHANGED' || error.code === 'ERR_NETWORK' || !error.response) {
+      // Error de red - el servidor no está disponible
+      console.error('Error de conectividad con el servidor:', error.message);
+      throw new Error('No se puede conectar con el servidor. Verifica que el backend esté funcionando.');
     }
+    
     return Promise.reject(error);
   }
 );
