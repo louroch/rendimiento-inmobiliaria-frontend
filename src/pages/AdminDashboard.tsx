@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import '../responsive-debug.css';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -174,6 +175,16 @@ const AdminDashboard: React.FC = () => {
           <span className="hidden sm:inline lg:hidden">📱 Tablet View</span>
           <span className="hidden lg:inline">💻 Desktop View</span>
         </div>
+        
+        {/* Debug: Test de responsive */}
+        <div className="bg-red-100 p-2 text-xs text-red-800 rounded mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 debug-grid">
+            <div className="bg-blue-200 p-1 text-center">1</div>
+            <div className="bg-green-200 p-1 text-center">2</div>
+            <div className="bg-purple-200 p-1 text-center">3</div>
+            <div className="bg-orange-200 p-1 text-center">4</div>
+          </div>
+        </div>
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-2 sm:justify-end" style={{ 
           flexDirection: 'column',
@@ -297,10 +308,15 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* Estadísticas Generales */}
-        <div className="grid gap-3 sm:gap-4 w-full" style={{ 
+        <div className="grid gap-3 sm:gap-4 w-full debug-grid" style={{ 
           gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
           display: 'grid'
         }}>
+          {/* Debug: Test simple de grid */}
+          <div className="bg-gray-200 p-4 text-center">
+            <h3 className="text-lg font-bold">Test Grid Responsive</h3>
+            <p className="text-sm">Esta tarjeta debería ocupar todo el ancho en mobile</p>
+          </div>
           {/* Total Consultas */}
           <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
             <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>

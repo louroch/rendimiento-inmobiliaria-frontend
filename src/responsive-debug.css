@@ -1,0 +1,26 @@
+/* Debug CSS para forzar responsive */
+@media (max-width: 639px) {
+  .debug-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .debug-flex {
+    flex-direction: column !important;
+  }
+  
+  .debug-w-full {
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .debug-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .debug-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
