@@ -175,13 +175,17 @@ const AdminDashboard: React.FC = () => {
           <span className="hidden lg:inline">💻 Desktop View</span>
         </div>
         {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <div className="flex flex-col sm:flex-row gap-2 sm:justify-end" style={{ 
+          flexDirection: 'column',
+          display: 'flex'
+        }}>
           <Button
             onClick={() => navigate('/admin/records')}
             variant="secondary"
             icon={Database}
             size="sm"
             className="w-full sm:w-auto"
+            style={{ width: '100%', marginBottom: '0.5rem' }}
           >
             <span className="hidden sm:inline">Ver Registros</span>
             <span className="sm:hidden">Registros</span>
@@ -192,6 +196,7 @@ const AdminDashboard: React.FC = () => {
             icon={Download}
             size="sm"
             className="w-full sm:w-auto"
+            style={{ width: '100%', marginBottom: '0.5rem' }}
           >
             Exportar
           </Button>
@@ -200,7 +205,12 @@ const AdminDashboard: React.FC = () => {
             icon={RefreshCw}
             size="sm"
             className="w-full sm:w-auto"
-            style={{ backgroundColor: '#240046', borderColor: '#240046', color: 'white' }}
+            style={{ 
+              backgroundColor: '#240046', 
+              borderColor: '#240046', 
+              color: 'white',
+              width: '100%'
+            }}
           >
             Actualizar
           </Button>
@@ -287,71 +297,74 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* Estadísticas Generales */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full" style={{ gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
+        <div className="grid gap-3 sm:gap-4 w-full" style={{ 
+          gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
+          display: 'grid'
+        }}>
           {/* Total Consultas */}
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" justifyContent="between">
-              <div className="min-w-0 flex-1">
-                <Text className="text-xs font-medium text-gray-600 truncate">
+          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
+            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
+              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
+                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
                   {filters.userId ? 'Consultas del Agente' : 'Total Consultas'}
                 </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900">{stats.totals.consultasRecibidas}</Metric>
-                <Text className="text-xs text-gray-500">Promedio: {stats.averages.consultasRecibidas}</Text>
+                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.consultasRecibidas}</Metric>
+                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.consultasRecibidas}</Text>
               </div>
-              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 ml-2">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" style={{ height: '1rem', width: '1rem' }} />
               </div>
             </Flex>
           </Card>
 
           {/* Total Muestras */}
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" justifyContent="between">
-              <div className="min-w-0 flex-1">
-                <Text className="text-xs font-medium text-gray-600 truncate">
+          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
+            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
+              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
+                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
                   {filters.userId ? 'Muestras del Agente' : 'Total Muestras'}
                 </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900">{stats.totals.muestrasRealizadas}</Metric>
-                <Text className="text-xs text-gray-500">Promedio: {stats.averages.muestrasRealizadas}</Text>
+                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.muestrasRealizadas}</Metric>
+                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.muestrasRealizadas}</Text>
               </div>
-              <div className="p-2 bg-green-100 rounded-lg flex-shrink-0 ml-2">
-                <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+              <div className="p-2 bg-green-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
+                <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" style={{ height: '1rem', width: '1rem' }} />
               </div>
             </Flex>
           </Card>
 
           {/* Total Operaciones */}
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" justifyContent="between">
-              <div className="min-w-0 flex-1">
-                <Text className="text-xs font-medium text-gray-600 truncate">
+          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
+            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
+              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
+                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
                   {filters.userId ? 'Operaciones del Agente' : 'Total Operaciones'}
                 </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900">{stats.totals.operacionesCerradas}</Metric>
-                <Text className="text-xs text-gray-500">Promedio: {stats.averages.operacionesCerradas}</Text>
+                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.operacionesCerradas}</Metric>
+                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.operacionesCerradas}</Text>
               </div>
-              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0 ml-2">
-                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" style={{ height: '1rem', width: '1rem' }} />
               </div>
             </Flex>
           </Card>
 
           {/* Conversión General */}
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" justifyContent="between">
-              <div className="min-w-0 flex-1">
-                <Text className="text-xs font-medium text-gray-600 truncate">
+          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
+            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
+              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
+                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
                   {filters.userId ? 'Conversión del Agente' : 'Conversión General'}
                 </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900">
+                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>
                   {stats.totals.consultasRecibidas > 0 
                     ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
                     : 0}%
                 </Metric>
-                <Text className="text-xs text-gray-500">{stats.totalRecords} registros</Text>
+                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>{stats.totalRecords} registros</Text>
               </div>
-              <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0 ml-2">
-                <Percent className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+              <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
+                <Percent className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" style={{ height: '1rem', width: '1rem' }} />
               </div>
             </Flex>
           </Card>
