@@ -1,0 +1,288 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut } from 'lucide-react';
+import { api } from '../services/api';
+
+interface FormData {
+  fecha: string;
+  consultasRecibidas: number;
+  muestrasRealizadas: number;
+  operacionesCerradas: number;
+  seguimiento: boolean;
+  usoTokko: string;
+}
+
+const NewRecord: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [formData, setFormData] = useState<FormData>({
+    fecha: new Date().toISOString().split('T')[0],
+    consultasRecibidas: 0,
+    muestrasRealizadas: 0,
+    operacionesCerradas: 0,
+    seguimiento: false,
+    usoTokko: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+
+    let processedValue: any = value;
+
+    // Convertir valores numéricos
+    if (type === 'number') {
+      processedValue = value === '' ? 0 : parseInt(value, 10);
+    } else if (type === 'checkbox') {
+      processedValue = (e.target as HTMLInputElement).checked;
+    }
+
+    setFormData({
+      ...formData,
+      [name]: processedValue
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      await api.post('/records', formData);
+      setSuccess(true);
+      
+      // Resetear formulario después de 2 segundos
+      setTimeout(() => {
+        setFormData({
+          fecha: new Date().toISOString().split('T')[0],
+          consultasRecibidas: 0,
+          muestrasRealizadas: 0,
+          operacionesCerradas: 0,
+          seguimiento: false,
+          usoTokko: ''
+        });
+        setSuccess(false);
+      }, 2000);
+
+    } catch (err: any) {
+      console.error('Error enviando registro:', err);
+      setError(err.response?.data?.message || 'Error al enviar el registro');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigate('/login');
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header superior fijo para agentes */}
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-[#240046] rounded-lg flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">Sistema de Rendimiento</h1>
+                <p className="text-sm text-gray-600">Bienvenido, {user?.name}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Contenido principal */}
+      <div className="py-8">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Card del formulario */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {/* Header del card */}
+            <div className="bg-gradient-to-r from-[#240046] to-[#5a189a] p-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-white bg-opacity-20 rounded-lg">
+                  <BarChart3 className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Registro de Desempeño Diario</h2>
+                  <p className="text-sm text-gray-200">Completa tus métricas del día</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contenido del formulario */}
+            <div className="p-6">
+              {success && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                    <span className="text-green-800 font-medium">¡Registro enviado exitosamente!</span>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center">
+                    <span className="text-red-800 font-medium">{error}</span>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Fecha */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Calendar className="h-4 w-4 inline mr-2" />
+                    Fecha
+                  </label>
+                  <input
+                    type="date"
+                    name="fecha"
+                    value={formData.fecha}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                    required
+                  />
+                </div>
+
+                {/* Métricas en tres columnas */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Users className="h-4 w-4 inline mr-2" />
+                      Consultas Recibidas
+                    </label>
+                    <input
+                      type="number"
+                      name="consultasRecibidas"
+                      value={formData.consultasRecibidas}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Eye className="h-4 w-4 inline mr-2" />
+                      Muestras Realizadas
+                    </label>
+                    <input
+                      type="number"
+                      name="muestrasRealizadas"
+                      value={formData.muestrasRealizadas}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <CheckCircle className="h-4 w-4 inline mr-2" />
+                      Operaciones Cerradas
+                    </label>
+                    <input
+                      type="number"
+                      name="operacionesCerradas"
+                      value={formData.operacionesCerradas}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Seguimiento */}
+                <div>
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      name="seguimiento"
+                      checked={formData.seguimiento}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-[#240046] focus:ring-[#240046] border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Realizó seguimiento</span>
+                  </label>
+                </div>
+
+                {/* Uso de Tokko */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Uso de Tokko
+                  </label>
+                  <textarea
+                    name="usoTokko"
+                    value={formData.usoTokko}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="Describe brevemente cómo usaste Tokko hoy..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                  />
+                </div>
+
+                {/* Botones alineados a la derecha */}
+                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center space-x-2 px-6 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    style={{ backgroundColor: '#5a189a' }}
+                    onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#9d4edd'}
+                    onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#5a189a'}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        <span>Enviar Registro</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NewRecord;
