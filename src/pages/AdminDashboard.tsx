@@ -167,7 +167,13 @@ const AdminDashboard: React.FC = () => {
       title="Panel de Administración" 
       subtitle="Monitoreo y análisis del desempeño del equipo inmobiliario"
     >
-      <div className="space-y-3 sm:space-y-4">
+      <div className="w-full space-y-3 sm:space-y-4" style={{ minWidth: 0 }}>
+        {/* Debug: Indicador de responsive */}
+        <div className="bg-yellow-100 p-2 text-xs text-yellow-800 rounded mb-2">
+          <span className="sm:hidden">📱 Mobile View</span>
+          <span className="hidden sm:inline lg:hidden">📱 Tablet View</span>
+          <span className="hidden lg:inline">💻 Desktop View</span>
+        </div>
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
           <Button
@@ -201,11 +207,11 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Filtros */}
-        <Card className="p-4">
+        <Card className="p-3 sm:p-4">
           <Flex alignItems="center" justifyContent="between" className="mb-3">
             <Flex alignItems="center" className="space-x-2">
               <Filter className="h-4 w-4 text-gray-600" />
-              <Text className="text-base font-medium text-gray-900">Filtros</Text>
+              <Text className="text-sm sm:text-base font-medium text-gray-900">Filtros</Text>
             </Flex>
           </Flex>
           
@@ -281,7 +287,7 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* Estadísticas Generales */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full" style={{ gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
           {/* Total Consultas */}
           <Card className="p-3 sm:p-4">
             <Flex alignItems="center" justifyContent="between">

@@ -62,4 +62,26 @@
   [role="option"] {
     @apply bg-white hover:bg-gray-100 active:bg-gray-200 !important;
   }
+  
+  /* Asegurar que las clases responsive de Tailwind funcionen correctamente */
+  .tremor-Card-root {
+    @apply w-full;
+  }
+  
+  .tremor-Flex-root {
+    @apply w-full;
+  }
+  
+  /* Forzar que las clases responsive funcionen */
+  @media (max-width: 639px) {
+    .sm\:grid-cols-2 {
+      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+    .sm\:flex-row {
+      flex-direction: column !important;
+    }
+    .sm\:text-base {
+      font-size: 0.875rem !important;
+    }
+  }
 }
