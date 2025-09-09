@@ -352,57 +352,57 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Tasas de Conversión Detalladas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Card className="p-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <Card className="p-3 sm:p-4">
             <Flex alignItems="center" className="space-x-2 mb-3">
               <TrendingUp className="h-4 w-4 text-gray-600" />
-              <Text className="text-base font-medium text-gray-900">Tasas de Conversión</Text>
+              <Text className="text-sm sm:text-base font-medium text-gray-900">Tasas de Conversión</Text>
             </Flex>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-blue-50 p-3 rounded-lg">
                 <Flex alignItems="center" justifyContent="between">
-                  <div>
-                    <Text className="text-xs font-medium text-blue-900">Consultas → Muestras</Text>
-                    <Metric className="text-lg font-bold text-blue-600">
+                  <div className="min-w-0 flex-1">
+                    <Text className="text-xs font-medium text-blue-900 truncate">Consultas → Muestras</Text>
+                    <Metric className="text-base sm:text-lg font-bold text-blue-600">
                       {stats.conversionRates.consultasToMuestras}%
                     </Metric>
                   </div>
-                  <Users className="h-6 w-6 text-blue-400" />
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 flex-shrink-0 ml-2" />
                 </Flex>
               </div>
               <div className="bg-green-50 p-3 rounded-lg">
                 <Flex alignItems="center" justifyContent="between">
-                  <div>
-                    <Text className="text-xs font-medium text-green-900">Muestras → Operaciones</Text>
-                    <Metric className="text-lg font-bold text-green-600">
+                  <div className="min-w-0 flex-1">
+                    <Text className="text-xs font-medium text-green-900 truncate">Muestras → Operaciones</Text>
+                    <Metric className="text-base sm:text-lg font-bold text-green-600">
                       {stats.conversionRates.muestrasToOperaciones}%
                     </Metric>
                   </div>
-                  <CheckCircle className="h-6 w-6 text-green-400" />
+                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0 ml-2" />
                 </Flex>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
-            <Text className="text-base font-medium text-gray-900 mb-3">Resumen de Eficiencia</Text>
+          <Card className="p-3 sm:p-4">
+            <Text className="text-sm sm:text-base font-medium text-gray-900 mb-3">Resumen de Eficiencia</Text>
             <div className="space-y-2">
               <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600">Consultas por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900">{stats.averages.consultasRecibidas}</span>
+                <Text className="text-xs text-gray-600 truncate">Consultas por día promedio:</Text>
+                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.consultasRecibidas}</span>
               </Flex>
               <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600">Muestras por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900">{stats.averages.muestrasRealizadas}</span>
+                <Text className="text-xs text-gray-600 truncate">Muestras por día promedio:</Text>
+                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.muestrasRealizadas}</span>
               </Flex>
               <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600">Operaciones por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900">{stats.averages.operacionesCerradas}</span>
+                <Text className="text-xs text-gray-600 truncate">Operaciones por día promedio:</Text>
+                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.operacionesCerradas}</span>
               </Flex>
               <div className="border-t pt-2">
                 <Flex justifyContent="between" alignItems="center">
-                  <Text className="text-xs font-medium text-gray-900">Eficiencia general:</Text>
-                  <span className="text-xs font-bold text-green-600">
+                  <Text className="text-xs font-medium text-gray-900 truncate">Eficiencia general:</Text>
+                  <span className="text-xs font-bold text-green-600 flex-shrink-0 ml-2">
                     {stats.totals.consultasRecibidas > 0 
                       ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
                       : 0}%
@@ -414,19 +414,19 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Gráficos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Card className="p-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <Card className="p-3 sm:p-4">
             <Flex alignItems="center" className="space-x-2 mb-3">
               <BarChart3 className="h-4 w-4 text-gray-600" />
-              <Text className="text-base font-medium text-gray-900">Tendencias de Desempeño</Text>
+              <Text className="text-sm sm:text-base font-medium text-gray-900">Tendencias de Desempeño</Text>
             </Flex>
             <AdminChart data={performanceData} />
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-3 sm:p-4">
             <Flex alignItems="center" className="space-x-2 mb-3">
               <TrendingUp className="h-4 w-4 text-gray-600" />
-              <Text className="text-base font-medium text-gray-900">Recomendaciones IA</Text>
+              <Text className="text-sm sm:text-base font-medium text-gray-900">Recomendaciones IA</Text>
             </Flex>
             <GeminiRecommendations 
               filters={filters}
@@ -436,15 +436,17 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Tabla de Desempeño */}
-        <Card className="p-4">
+        <Card className="p-3 sm:p-4">
           <Flex alignItems="center" className="space-x-2 mb-3">
             <Calendar className="h-4 w-4 text-gray-600" />
-            <Text className="text-base font-medium text-gray-900">Registros de Desempeño</Text>
+            <Text className="text-sm sm:text-base font-medium text-gray-900">Registros de Desempeño</Text>
           </Flex>
-          <AdminTable 
-            data={performanceData}
-            onUpdate={fetchData}
-          />
+          <div className="overflow-x-auto">
+            <AdminTable 
+              data={performanceData}
+              onUpdate={fetchData}
+            />
+          </div>
         </Card>
       </div>
     </AdminLayout>
