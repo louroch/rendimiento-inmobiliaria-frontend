@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -6,13 +6,16 @@ import {
   BarChart3, 
   Users, 
   LogOut, 
-  User
+  User,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -29,14 +32,32 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-center border-b border-gray-200">
-            <h1 className="text-xl font-bold text-primary-600">
-              📊 Rendimiento Inmobiliario
-            </h1>
+          <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
+            <div className="flex items-center">
+              <h1 className="text-lg sm:text-xl font-bold text-primary-600">
+                📊 Rendimiento Inmobiliario
+              </h1>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden text-gray-400 hover:text-gray-600 p-1"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
           {/* Navigation */}
@@ -46,8 +67,11 @@ const Layout: React.FC = () => {
               return (
                 <button
                   key={item.name}
-                  onClick={() => navigate(item.href)}
-                  className={`group flex w-full items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                  onClick={() => {
+                    navigate(item.href);
+                    setSidebarOpen(false);
+                  }}
+                  className={`group flex w-full items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     item.current
                       ? 'bg-primary-100 text-primary-900'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -68,8 +92,8 @@ const Layout: React.FC = () => {
                   <User className="h-5 w-5 text-primary-600" />
                 </div>
               </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
                 <p className="text-xs text-gray-500 capitalize">{user?.role?.toLowerCase()}</p>
               </div>
               <button
@@ -85,8 +109,26 @@ const Layout: React.FC = () => {
       </div>
 
       {/* Main content */}
-      <div className="pl-64">
-        <main className="py-6">
+      <div className="lg:pl-64">
+        {/* Mobile header */}
+        <div className="lg:hidden bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
+          <div className="flex items-center justify-between h-14 px-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-gray-500 hover:text-gray-700 p-1"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <div className="flex items-center">
+              <h1 className="text-lg font-semibold text-gray-900">
+                📊 Rendimiento
+              </h1>
+            </div>
+            <div className="w-8"></div> {/* Spacer for centering */}
+          </div>
+        </div>
+
+        <main className="py-4 lg:py-6">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Outlet />
           </div>

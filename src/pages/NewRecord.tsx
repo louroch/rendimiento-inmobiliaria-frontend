@@ -90,48 +90,48 @@ const NewRecord: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header superior fijo para agentes */}
       <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-[#240046] rounded-lg flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-white" />
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#240046] rounded-lg flex items-center justify-center flex-shrink-0">
+                <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900">Sistema de Rendimiento</h1>
-                <p className="text-sm text-gray-600">Bienvenido, {user?.name}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">Sistema de Rendimiento</h1>
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Bienvenido, {user?.name}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             >
               <LogOut className="h-4 w-4" />
-              <span>Cerrar Sesión</span>
+              <span className="hidden sm:inline">Cerrar Sesión</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Contenido principal */}
-      <div className="py-8">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="py-4 sm:py-6 lg:py-8">
+        <div className="max-w-2xl mx-auto px-3 sm:px-4 lg:px-6">
           {/* Card del formulario */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {/* Header del card */}
-            <div className="bg-gradient-to-r from-[#240046] to-[#5a189a] p-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-white bg-opacity-20 rounded-lg">
-                  <BarChart3 className="h-6 w-6 text-white" />
+            <div className="bg-gradient-to-r from-[#240046] to-[#5a189a] p-4 sm:p-6">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="p-2 bg-white bg-opacity-20 rounded-lg flex-shrink-0">
+                  <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">Registro de Desempeño Diario</h2>
-                  <p className="text-sm text-gray-200">Completa tus métricas del día</p>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg sm:text-xl font-bold text-white truncate">Registro de Desempeño Diario</h2>
+                  <p className="text-xs sm:text-sm text-gray-200">Completa tus métricas del día</p>
                 </div>
               </div>
             </div>
 
             {/* Contenido del formulario */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {success && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center">
@@ -167,7 +167,7 @@ const NewRecord: React.FC = () => {
                 </div>
 
                 {/* Métricas en tres columnas */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Users className="h-4 w-4 inline mr-2" />
@@ -247,18 +247,18 @@ const NewRecord: React.FC = () => {
                 </div>
 
                 {/* Botones alineados a la derecha */}
-                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4 sm:pt-6 border-t border-gray-200">
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex items-center space-x-2 px-6 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 sm:px-6 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                     style={{ backgroundColor: '#5a189a' }}
                     onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#9d4edd'}
                     onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#5a189a'}
@@ -271,7 +271,8 @@ const NewRecord: React.FC = () => {
                     ) : (
                       <>
                         <Save className="h-4 w-4" />
-                        <span>Enviar Registro</span>
+                        <span className="hidden sm:inline">Enviar Registro</span>
+                        <span className="sm:hidden">Enviar</span>
                       </>
                     )}
                   </button>

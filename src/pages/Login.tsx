@@ -67,7 +67,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Welcome Section */}
       <div className="hidden lg:flex lg:w-2/3 relative overflow-hidden">
         {/* Background image */}
@@ -80,27 +80,39 @@ const Login: React.FC = () => {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+        <div className="relative z-10 flex flex-col justify-center px-8 xl:px-16 text-white">
           {/* Logo */}
-          <div className="flex items-center mb-8">
+          <div className="flex items-center mb-6 xl:mb-8">
             <img 
               src="/images/metric.png" 
               alt="Logo" 
-              className="w-12 h-12 mr-4"
+              className="w-10 h-10 xl:w-12 xl:h-12 mr-3 xl:mr-4"
             />
-            <span className="text-3xl font-bold uppercase tracking-wider" style={{ fontFamily: 'Special Gothic Expanded One, sans-serif' }}>Sistema de Rendimiento Inmobiliario</span>
+            <span className="text-xl xl:text-3xl font-bold uppercase tracking-wider" style={{ fontFamily: 'Special Gothic Expanded One, sans-serif' }}>Sistema de Rendimiento Inmobiliario</span>
           </div>
           
           {/* Description */}
-          <p className="text-xl text-white leading-relaxed max-w-md ml-16" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          <p className="text-lg xl:text-xl text-white leading-relaxed max-w-md ml-0 xl:ml-16" style={{ fontFamily: 'Poppins, sans-serif' }}>
             Ingresá tu rendimiento diario para evaluar tu progreso
           </p>
         </div>
       </div>
 
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-gradient-to-r from-[#240046] to-[#5a189a] text-white p-4">
+        <div className="flex items-center justify-center">
+          <img 
+            src="/images/metric.png" 
+            alt="Logo" 
+            className="w-8 h-8 mr-3"
+          />
+          <h1 className="text-lg font-bold">Sistema de Rendimiento Inmobiliario</h1>
+        </div>
+      </div>
+
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-1/3 flex items-center justify-center p-8">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+      <div className="w-full lg:w-1/3 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div className="w-full max-w-md bg-white rounded-xl lg:rounded-2xl shadow-xl lg:shadow-2xl p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>

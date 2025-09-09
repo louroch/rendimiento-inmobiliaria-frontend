@@ -130,11 +130,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       <div className="flex-1 flex flex-col h-screen">
         {/* Top header */}
         <div className="bg-white border-b border-gray-200 shadow-sm pt-0 mt-0">
-          <div className="flex items-center justify-between h-14 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between h-14 px-3 sm:px-4 lg:px-6">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-gray-500 hover:text-gray-700 p-1"
+                className="lg:hidden text-gray-500 hover:text-gray-700 p-1 flex-shrink-0"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -142,22 +142,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               {showBackButton && (
                 <button
                   onClick={() => navigate(backPath)}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors px-2 py-1 rounded-md hover:bg-gray-100"
+                  className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-gray-900 transition-colors px-2 py-1 rounded-md hover:bg-gray-100 flex-shrink-0"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  <span className="text-sm font-medium">Volver</span>
+                  <span className="text-sm font-medium hidden sm:inline">Volver</span>
                 </button>
               )}
               
-              <div className="flex-1">
-                <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{title}</h1>
                 {subtitle && (
-                  <p className="text-sm text-gray-600">{subtitle}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">{subtitle}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
               <div className="hidden sm:flex items-center space-x-2 text-xs text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
                 <TrendingUp className="h-3 w-3" />
                 <span>Sistema de Rendimiento</span>

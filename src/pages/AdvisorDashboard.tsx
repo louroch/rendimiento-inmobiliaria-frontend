@@ -88,36 +88,37 @@ const AdvisorDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
             ¡Hola, {user?.name}! 👋
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Registra tu desempeño diario y mantén el seguimiento de tus metas
           </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
         >
           <Plus className="h-5 w-5" />
-          <span>Nuevo Registro</span>
+          <span className="hidden sm:inline">Nuevo Registro</span>
+          <span className="sm:hidden">Nuevo</span>
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Consultas Recibidas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalConsultas}</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Consultas Recibidas</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalConsultas}</p>
             </div>
           </div>
         </div>
@@ -125,23 +126,11 @@ const AdvisorDashboard: React.FC = () => {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Eye className="h-8 w-8 text-green-600" />
+              <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Muestras Realizadas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalMuestras}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <CheckCircle className="h-8 w-8 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Operaciones Cerradas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalOperaciones}</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Muestras Realizadas</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalMuestras}</p>
             </div>
           </div>
         </div>
@@ -149,11 +138,23 @@ const AdvisorDashboard: React.FC = () => {
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <TrendingUp className="h-8 w-8 text-orange-600" />
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Tasa de Conversión</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.conversionRate.toFixed(1)}%</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Operaciones Cerradas</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalOperaciones}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+            </div>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Tasa de Conversión</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.conversionRate.toFixed(1)}%</p>
             </div>
           </div>
         </div>

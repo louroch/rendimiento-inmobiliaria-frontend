@@ -65,18 +65,18 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate pr-2">
               {editData ? 'Editar Registro' : 'Nuevo Registro de Desempeño'}
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 flex-shrink-0"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </div>
 
@@ -181,18 +181,18 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
               </div>
             )}
 
-            <div className="flex space-x-3 pt-4">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 btn-secondary"
+                className="flex-1 btn-secondary text-sm sm:text-base"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 btn-primary disabled:opacity-50"
+                className="flex-1 btn-primary disabled:opacity-50 text-sm sm:text-base"
               >
                 {loading ? 'Guardando...' : editData ? 'Actualizar' : 'Guardar'}
               </button>
