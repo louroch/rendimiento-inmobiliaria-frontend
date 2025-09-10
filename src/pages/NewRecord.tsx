@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText } from 'lucide-react';
 import { api } from '../services/api';
+import ConnectionTest from '../components/ConnectionTest';
 
 interface FormData {
   fecha: string;
@@ -78,14 +79,24 @@ const NewRecord: React.FC = () => {
     setSuccess(false);
 
     try {
-      // Preparar datos para envío, convirtiendo valores vacíos a null
+      // Preparar datos para envío, convirtiendo valores vacíos a null y asegurando tipos correctos
       const dataToSend = {
-        ...formData,
-        cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko || null,
+        fecha: formData.fecha,
+        consultasRecibidas: Number(formData.consultasRecibidas),
+        muestrasRealizadas: Number(formData.muestrasRealizadas),
+        operacionesCerradas: Number(formData.operacionesCerradas),
+        seguimiento: Boolean(formData.seguimiento),
+        usoTokko: formData.usoTokko || null,
+        cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko ? Number(formData.cantidadPropiedadesTokko) : null,
         linksTokko: formData.linksTokko || null,
+        dificultadTokko: formData.dificultadTokko,
         detalleDificultadTokko: formData.detalleDificultadTokko || null,
         observaciones: formData.observaciones || null
       };
+
+      // Log para debugging
+      console.log('Datos que se van a enviar:', dataToSend);
+      console.log('Token actual:', localStorage.getItem('token'));
 
       await api.post('/performance', dataToSend);
       setSuccess(true);
@@ -111,7 +122,32 @@ const NewRecord: React.FC = () => {
 
     } catch (err: any) {
       console.error('Error enviando registro:', err);
-      setError(err.response?.data?.message || 'Error al enviar el registro');
+      console.error('Detalles del error:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        headers: err.response?.headers,
+        config: err.config
+      });
+      
+      let errorMessage = 'Error al enviar el registro';
+      
+      if (err.response?.status === 400) {
+        errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctamente completados.';
+        if (err.response?.data?.message) {
+          errorMessage += ` Detalles: ${err.response.data.message}`;
+        }
+      } else if (err.response?.status === 401) {
+        errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'No tienes permisos para realizar esta acción.';
+      } else if (err.response?.status >= 500) {
+        errorMessage = 'Error del servidor. Intenta nuevamente en unos minutos.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -172,6 +208,11 @@ const NewRecord: React.FC = () => {
 
             {/* Contenido del formulario */}
             <div className="p-4 sm:p-6">
+              {/* Componente de prueba de conexión - temporal para debugging */}
+              <div className="mb-6">
+                <ConnectionTest />
+              </div>
+
               {success && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center">
