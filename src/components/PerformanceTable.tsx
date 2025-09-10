@@ -10,17 +10,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import PerformanceForm from './PerformanceForm';
-
-interface PerformanceData {
-  id: string;
-  fecha: string;
-  consultasRecibidas: number;
-  muestrasRealizadas: number;
-  operacionesCerradas: number;
-  seguimiento: boolean;
-  usoTokko: string | null;
-  createdAt: string;
-}
+import { PerformanceData } from '../types/performance';
 
 interface PerformanceTableProps {
   data: PerformanceData[];
@@ -109,6 +99,12 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onD
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                 Tokko
               </th>
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                Propiedades
+              </th>
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                Dificultad
+              </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
               </th>
@@ -146,6 +142,22 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onD
                         {item.usoTokko}
                       </span>
                     </div>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center hidden lg:table-cell">
+                  {item.cantidadPropiedadesTokko || '-'}
+                </td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden lg:table-cell">
+                  {item.dificultadTokko !== null ? (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      item.dificultadTokko 
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {item.dificultadTokko ? 'Sí' : 'No'}
+                    </span>
                   ) : (
                     <span className="text-gray-400">-</span>
                   )}

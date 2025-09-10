@@ -12,22 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import PerformanceForm from './PerformanceForm';
-
-interface PerformanceData {
-  id: string;
-  fecha: string;
-  consultasRecibidas: number;
-  muestrasRealizadas: number;
-  operacionesCerradas: number;
-  seguimiento: boolean;
-  usoTokko: string | null;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  createdAt: string;
-}
+import { PerformanceData } from '../types/performance';
 
 interface AdminTableProps {
   data: PerformanceData[];
@@ -123,6 +108,12 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                 Tokko
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Propiedades
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Dificultad
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
@@ -135,8 +126,8 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{item.user.name}</div>
-                    <div className="text-sm text-gray-500">{item.user.email}</div>
+                    <div className="text-sm font-medium text-gray-900">{item.user?.name || 'N/A'}</div>
+                    <div className="text-sm text-gray-500">{item.user?.email || 'N/A'}</div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -165,6 +156,22 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                         {item.usoTokko}
                       </span>
                     </div>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  {item.cantidadPropiedadesTokko || '-'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {item.dificultadTokko !== null ? (
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      item.dificultadTokko 
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {item.dificultadTokko ? 'Sí' : 'No'}
+                    </span>
                   ) : (
                     <span className="text-gray-400">-</span>
                   )}
