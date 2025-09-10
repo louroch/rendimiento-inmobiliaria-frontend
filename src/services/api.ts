@@ -24,14 +24,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('Error en petición API:', error);
-    console.error('Detalles del error de API:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      url: error.config?.url,
-      method: error.config?.method,
-      headers: error.response?.headers
-    });
     
     if (error.response?.status === 401) {
       localStorage.removeItem('token');

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText } from 'lucide-react';
 import { api } from '../services/api';
-import ConnectionTest from '../components/ConnectionTest';
 
 interface FormData {
   fecha: string;
@@ -79,19 +78,19 @@ const NewRecord: React.FC = () => {
     setSuccess(false);
 
     try {
-      // Preparar datos para envío, convirtiendo valores vacíos a null y asegurando tipos correctos
+      // Preparar datos para envío
       const dataToSend = {
         fecha: formData.fecha,
-        consultasRecibidas: Number(formData.consultasRecibidas),
-        muestrasRealizadas: Number(formData.muestrasRealizadas),
-        operacionesCerradas: Number(formData.operacionesCerradas),
+        consultasRecibidas: Number(formData.consultasRecibidas) || 0,
+        muestrasRealizadas: Number(formData.muestrasRealizadas) || 0,
+        operacionesCerradas: Number(formData.operacionesCerradas) || 0,
         seguimiento: Boolean(formData.seguimiento),
-        usoTokko: formData.usoTokko || null,
+        usoTokko: formData.usoTokko?.trim() || null,
         cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko ? Number(formData.cantidadPropiedadesTokko) : null,
-        linksTokko: formData.linksTokko || null,
+        linksTokko: formData.linksTokko?.trim() || null,
         dificultadTokko: formData.dificultadTokko,
-        detalleDificultadTokko: formData.detalleDificultadTokko || null,
-        observaciones: formData.observaciones || null
+        detalleDificultadTokko: formData.detalleDificultadTokko?.trim() || null,
+        observaciones: formData.observaciones?.trim() || null
       };
 
       // Log para debugging
@@ -122,13 +121,6 @@ const NewRecord: React.FC = () => {
 
     } catch (err: any) {
       console.error('Error enviando registro:', err);
-      console.error('Detalles del error:', {
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data,
-        headers: err.response?.headers,
-        config: err.config
-      });
       
       let errorMessage = 'Error al enviar el registro';
       
@@ -208,11 +200,6 @@ const NewRecord: React.FC = () => {
 
             {/* Contenido del formulario */}
             <div className="p-4 sm:p-6">
-              {/* Componente de prueba de conexión - temporal para debugging */}
-              <div className="mb-6">
-                <ConnectionTest />
-              </div>
-
               {success && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center">
