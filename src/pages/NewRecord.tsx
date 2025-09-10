@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut } from 'lucide-react';
+import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText } from 'lucide-react';
 import { api } from '../services/api';
 
 interface FormData {
@@ -11,6 +11,12 @@ interface FormData {
   operacionesCerradas: number;
   seguimiento: boolean;
   usoTokko: string;
+  // Nuevos campos
+  cantidadPropiedadesTokko: string | number;
+  linksTokko: string;
+  dificultadTokko: boolean | null;
+  detalleDificultadTokko: string;
+  observaciones: string;
 }
 
 const NewRecord: React.FC = () => {
@@ -22,11 +28,21 @@ const NewRecord: React.FC = () => {
     muestrasRealizadas: 0,
     operacionesCerradas: 0,
     seguimiento: false,
-    usoTokko: ''
+    usoTokko: '',
+    // Nuevos campos
+    cantidadPropiedadesTokko: '',
+    linksTokko: '',
+    dificultadTokko: null,
+    detalleDificultadTokko: '',
+    observaciones: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showDetalleDificultad, setShowDetalleDificultad] = useState(false);
+
+  // Obtener la fecha de hoy para validación
+  const today = new Date().toISOString().split('T')[0];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -46,6 +62,15 @@ const NewRecord: React.FC = () => {
     });
   };
 
+  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value === 'true';
+    setFormData({
+      ...formData,
+      dificultadTokko: value
+    });
+    setShowDetalleDificultad(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -53,7 +78,16 @@ const NewRecord: React.FC = () => {
     setSuccess(false);
 
     try {
-      await api.post('/records', formData);
+      // Preparar datos para envío, convirtiendo valores vacíos a null
+      const dataToSend = {
+        ...formData,
+        cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko || null,
+        linksTokko: formData.linksTokko || null,
+        detalleDificultadTokko: formData.detalleDificultadTokko || null,
+        observaciones: formData.observaciones || null
+      };
+
+      await api.post('/performance', dataToSend);
       setSuccess(true);
       
       // Resetear formulario después de 2 segundos
@@ -64,8 +98,14 @@ const NewRecord: React.FC = () => {
           muestrasRealizadas: 0,
           operacionesCerradas: 0,
           seguimiento: false,
-          usoTokko: ''
+          usoTokko: '',
+          cantidadPropiedadesTokko: '',
+          linksTokko: '',
+          dificultadTokko: null,
+          detalleDificultadTokko: '',
+          observaciones: ''
         });
+        setShowDetalleDificultad(false);
         setSuccess(false);
       }, 2000);
 
@@ -161,6 +201,7 @@ const NewRecord: React.FC = () => {
                     name="fecha"
                     value={formData.fecha}
                     onChange={handleChange}
+                    min={today}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
                     required
                   />
@@ -244,6 +285,110 @@ const NewRecord: React.FC = () => {
                     placeholder="Describe brevemente cómo usaste Tokko hoy..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
                   />
+                </div>
+
+                {/* Nuevos campos de Tokko */}
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Información adicional de Tokko</h3>
+                  
+                  {/* Cantidad de Propiedades */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FileText className="h-4 w-4 inline mr-2" />
+                      Cantidad de propiedades cargadas en Tokko
+                    </label>
+                    <input
+                      type="number"
+                      name="cantidadPropiedadesTokko"
+                      value={formData.cantidadPropiedadesTokko}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      placeholder="Ej: 5"
+                    />
+                  </div>
+
+                  {/* Links de Propiedades */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Link className="h-4 w-4 inline mr-2" />
+                      Links de las propiedades
+                    </label>
+                    <textarea
+                      name="linksTokko"
+                      value={formData.linksTokko}
+                      onChange={handleChange}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      placeholder="https://ejemplo1.com, https://ejemplo2.com"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Separa múltiples links con comas</p>
+                  </div>
+
+                  {/* Dificultad con Tokko */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <AlertCircle className="h-4 w-4 inline mr-2" />
+                      ¿Se te dificultó el uso de Tokko?
+                    </label>
+                    <div className="flex space-x-4 mt-2">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="dificultadTokko"
+                          value="true"
+                          checked={formData.dificultadTokko === true}
+                          onChange={handleRadioChange}
+                          className="h-4 w-4 text-[#240046] focus:ring-[#240046] border-gray-300"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Sí</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="dificultadTokko"
+                          value="false"
+                          checked={formData.dificultadTokko === false}
+                          onChange={handleRadioChange}
+                          className="h-4 w-4 text-[#240046] focus:ring-[#240046] border-gray-300"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Campo condicional para detalle de dificultad */}
+                  {showDetalleDificultad && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Detalla las dificultades encontradas
+                      </label>
+                      <textarea
+                        name="detalleDificultadTokko"
+                        value={formData.detalleDificultadTokko}
+                        onChange={handleChange}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                        placeholder="Describe las dificultades que tuviste..."
+                      />
+                    </div>
+                  )}
+
+                  {/* Observaciones */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <FileText className="h-4 w-4 inline mr-2" />
+                      Observaciones
+                    </label>
+                    <textarea
+                      name="observaciones"
+                      value={formData.observaciones}
+                      onChange={handleChange}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      placeholder="Cualquier observación adicional..."
+                    />
+                  </div>
                 </div>
 
                 {/* Botones alineados a la derecha */}
