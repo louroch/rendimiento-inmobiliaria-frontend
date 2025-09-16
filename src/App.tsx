@@ -9,6 +9,7 @@ import NewRecord from './pages/NewRecord';
 import AdminRecords from './pages/AdminRecords';
 import NewAgent from './pages/NewAgent';
 import AdminUsers from './pages/AdminUsers';
+import TokkoDashboard from './pages/TokkoDashboard';
 import Layout from './components/Layout';
 
 function App() {
@@ -45,6 +46,11 @@ function App() {
             <Route path="/admin/users" element={
               <ProtectedRoute requireAdmin>
                 <AdminUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/tokko" element={
+              <ProtectedRoute requireAdmin>
+                <TokkoDashboard />
               </ProtectedRoute>
             } />
             
