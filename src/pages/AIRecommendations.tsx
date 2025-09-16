@@ -11,6 +11,7 @@ import {
 import { Card, Text, Flex, Button, Select, SelectItem } from '@tremor/react';
 import AdminLayout from '../components/AdminLayout';
 import GeminiRecommendations from '../components/GeminiRecommendations';
+import ConnectivityTest from '../components/ConnectivityTest';
 import { api } from '../services/api';
 
 interface User {
@@ -98,6 +99,9 @@ const AIRecommendations: React.FC = () => {
             </div>
           </div>
         </Card>
+
+        {/* Prueba de Conectividad */}
+        <ConnectivityTest />
 
         {/* Filtros */}
         <Card className="p-6">

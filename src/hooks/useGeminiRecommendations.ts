@@ -32,7 +32,7 @@ export const useGeminiRecommendations = (type: 'general' | 'personal' | 'advance
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = async (retryCount = 0) => {
     setLoading(true);
     setError(null);
     
@@ -54,7 +54,15 @@ export const useGeminiRecommendations = (type: 'general' | 'personal' | 'advance
       setData(response.data);
     } catch (err: any) {
       console.error('Error fetching Gemini recommendations:', err);
-      setError(err.response?.data?.message || 'Error generando recomendaciones');
+      
+      // Si es un error de timeout o conectividad y no hemos agotado los reintentos
+      if ((err.message?.includes('Timeout') || err.message?.includes('No se puede conectar')) && retryCount < 2) {
+        console.log(`Reintentando... (${retryCount + 1}/3)`);
+        setTimeout(() => fetchRecommendations(retryCount + 1), 2000);
+        return;
+      }
+      
+      setError(err.message || 'Error generando recomendaciones');
     } finally {
       setLoading(false);
     }

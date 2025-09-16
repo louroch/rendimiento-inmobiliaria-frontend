@@ -28,13 +28,23 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
+    } else if (error.code === 'ECONNABORTED') {
+      // Timeout
+      console.error('Timeout: El servidor tardó demasiado en responder');
+      throw new Error('Timeout: El servidor tardó demasiado en responder. Intenta nuevamente.');
     } else if (error.code === 'ERR_NETWORK_CHANGED' || error.code === 'ERR_NETWORK' || !error.response) {
       // Error de red - el servidor no está disponible
       console.error('Error de conectividad con el servidor:', error.message);
-      throw new Error('No se puede conectar con el servidor. Verifica que el backend esté funcionando.');
+      throw new Error('No se puede conectar con el servidor. Verifica que el backend esté funcionando en http://localhost:5000');
+    } else if (error.response) {
+      // El servidor respondió con un código de error
+      console.error(`Error del servidor: ${error.response.status} - ${error.response.statusText}`);
+      throw new Error(`Error del servidor: ${error.response.status} - ${error.response.statusText}`);
+    } else {
+      // Error en la configuración de la petición
+      console.error(`Error de configuración: ${error.message}`);
+      throw new Error(`Error de configuración: ${error.message}`);
     }
-    
-    return Promise.reject(error);
   }
 );
 

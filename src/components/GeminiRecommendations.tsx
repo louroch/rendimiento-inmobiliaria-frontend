@@ -69,11 +69,29 @@ const GeminiRecommendations: React.FC<GeminiRecommendationsProps> = ({
           <span className="font-medium">Error generando recomendaciones</span>
         </div>
         <p className="text-red-600 text-sm mb-4">{error}</p>
+        
+        {error.includes('No se puede conectar') && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <p className="text-yellow-800 text-sm">
+              <strong>💡 Solución:</strong> Verifica que el backend esté funcionando en <code>http://localhost:5000</code>
+            </p>
+          </div>
+        )}
+        
+        {error.includes('Timeout') && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-blue-800 text-sm">
+              <strong>⏱️ El servidor tardó demasiado en responder.</strong> Esto puede ser normal para análisis complejos.
+            </p>
+          </div>
+        )}
+        
         {showRefresh && (
           <button
-            onClick={refetch}
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
+            onClick={() => refetch(0)}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
+            <RefreshCw className="h-4 w-4 mr-2" />
             Intentar nuevamente
           </button>
         )}
@@ -102,7 +120,7 @@ const GeminiRecommendations: React.FC<GeminiRecommendationsProps> = ({
           </div>
           {showRefresh && (
             <button
-              onClick={refetch}
+              onClick={() => refetch(0)}
               disabled={loading}
               className="text-gray-400 hover:text-gray-600 transition-colors"
               title="Actualizar recomendaciones"
