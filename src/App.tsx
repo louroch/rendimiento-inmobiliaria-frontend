@@ -10,6 +10,7 @@ import AdminRecords from './pages/AdminRecords';
 import NewAgent from './pages/NewAgent';
 import AdminUsers from './pages/AdminUsers';
 import TokkoDashboard from './pages/TokkoDashboard';
+import WeeklyDashboard from './pages/WeeklyDashboard';
 import Layout from './components/Layout';
 
 function App() {
@@ -51,6 +52,11 @@ function App() {
             <Route path="/admin/tokko" element={
               <ProtectedRoute requireAdmin>
                 <TokkoDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/weekly" element={
+              <ProtectedRoute requireAdmin>
+                <WeeklyDashboard />
               </ProtectedRoute>
             } />
             

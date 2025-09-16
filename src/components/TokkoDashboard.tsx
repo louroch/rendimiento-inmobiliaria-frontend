@@ -85,7 +85,7 @@ const TokkoDashboard: React.FC<TokkoDashboardProps> = ({ filters = {}, className
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Resumen General */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <Card className="p-4">
           <Flex alignItems="center" justifyContent="between">
             <div>
@@ -156,11 +156,11 @@ const TokkoDashboard: React.FC<TokkoDashboardProps> = ({ filters = {}, className
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Gráfico de Dificultad */}
-        <Card className="p-6">
-          <Text className="text-lg font-semibold mb-4">Dificultad de Uso de Tokko</Text>
-          <div className="h-64">
+        <Card className="p-4">
+          <Text className="text-lg font-semibold mb-3">Dificultad de Uso de Tokko</Text>
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -183,9 +183,9 @@ const TokkoDashboard: React.FC<TokkoDashboardProps> = ({ filters = {}, className
         </Card>
 
         {/* Gráfico de Uso */}
-        <Card className="p-6">
-          <Text className="text-lg font-semibold mb-4">Distribución de Uso</Text>
-          <div className="h-64">
+        <Card className="p-4">
+          <Text className="text-lg font-semibold mb-3">Distribución de Uso</Text>
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={usoData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -200,9 +200,9 @@ const TokkoDashboard: React.FC<TokkoDashboardProps> = ({ filters = {}, className
       </div>
 
       {/* Propiedades por Agente */}
-      <Card className="p-6">
-        <Text className="text-lg font-semibold mb-4">Propiedades Cargadas por Agente</Text>
-        <div className="h-64">
+      <Card className="p-4">
+        <Text className="text-lg font-semibold mb-3">Propiedades Cargadas por Agente</Text>
+        <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={propiedadesPorAgente} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" />
@@ -217,8 +217,8 @@ const TokkoDashboard: React.FC<TokkoDashboardProps> = ({ filters = {}, className
 
       {/* Dificultades Detalladas */}
       {tokkoStats.dificultadesDetalladas.length > 0 && (
-        <Card className="p-6">
-          <Text className="text-lg font-semibold mb-4">Dificultades Reportadas</Text>
+        <Card className="p-4">
+          <Text className="text-lg font-semibold mb-3">Dificultades Reportadas</Text>
           <Table>
             <TableHead>
               <TableRow>
@@ -249,8 +249,8 @@ const TokkoDashboard: React.FC<TokkoDashboardProps> = ({ filters = {}, className
       )}
 
       {/* Tabla de Agentes */}
-      <Card className="p-6">
-        <Text className="text-lg font-semibold mb-4">Métricas por Agente</Text>
+      <Card className="p-4">
+        <Text className="text-lg font-semibold mb-3">Métricas por Agente</Text>
         <Table>
           <TableHead>
             <TableRow>

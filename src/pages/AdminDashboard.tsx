@@ -8,12 +8,10 @@ import {
   Filter,
   Download,
   RefreshCw,
-  Database,
   Users,
   Eye,
   CheckCircle,
-  Percent,
-  Building2
+  Percent
 } from 'lucide-react';
 import { Card, Metric, Text, Flex, Button, Select, SelectItem } from '@tremor/react';
 import AdminLayout from '../components/AdminLayout';
@@ -174,28 +172,6 @@ const AdminDashboard: React.FC = () => {
           flexDirection: 'column',
           display: 'flex'
         }}>
-          <Button
-            onClick={() => navigate('/admin/tokko')}
-            variant="secondary"
-            icon={Building2}
-            size="sm"
-            className="w-full sm:w-auto"
-            style={{ width: '100%', marginBottom: '0.5rem' }}
-          >
-            <span className="hidden sm:inline">Dashboard Tokko</span>
-            <span className="sm:hidden">Tokko</span>
-          </Button>
-          <Button
-            onClick={() => navigate('/admin/records')}
-            variant="secondary"
-            icon={Database}
-            size="sm"
-            className="w-full sm:w-auto"
-            style={{ width: '100%', marginBottom: '0.5rem' }}
-          >
-            <span className="hidden sm:inline">Ver Registros</span>
-            <span className="sm:hidden">Registros</span>
-          </Button>
           <Button
             onClick={exportData}
             variant="secondary"
@@ -448,16 +424,16 @@ const AdminDashboard: React.FC = () => {
             <AdminChart data={performanceData} />
           </Card>
 
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" className="space-x-2 mb-3">
-              <TrendingUp className="h-4 w-4 text-gray-600" />
-              <Text className="text-sm sm:text-base font-medium text-gray-900">Recomendaciones IA</Text>
-            </Flex>
-            <GeminiRecommendations 
-              filters={filters}
-              performanceData={performanceData}
-            />
-          </Card>
+          <GeminiRecommendations 
+            type="general"
+            filters={{
+              startDate: filters.startDate,
+              endDate: filters.endDate,
+              userId: filters.userId
+            }}
+            title="Recomendaciones de IA"
+            className="p-3 sm:p-4"
+          />
         </div>
 
         {/* Tabla de Desempeño */}
@@ -473,6 +449,20 @@ const AdminDashboard: React.FC = () => {
             />
           </div>
         </Card>
+
+        {/* Análisis Avanzado con IA */}
+        <GeminiRecommendations 
+          type="advanced"
+          filters={{
+            startDate: filters.startDate,
+            endDate: filters.endDate,
+            userId: filters.userId,
+            includeTokko: true,
+            includeWeekly: true
+          }}
+          title="Análisis Avanzado con IA"
+          showRefresh={true}
+        />
       </div>
     </AdminLayout>
   );

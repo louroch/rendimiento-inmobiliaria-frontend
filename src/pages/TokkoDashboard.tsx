@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button, Select, SelectItem, Card } from '@tremor/react';
-import { ArrowLeft, RefreshCw, Filter, Download } from 'lucide-react';
+import { Filter, Download } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import TokkoDashboard from '../components/TokkoDashboard';
 import { TokkoFilters } from '../services/tokkoService';
@@ -14,7 +13,6 @@ interface User {
 }
 
 const TokkoDashboardPage: React.FC = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [filters, setFilters] = useState<TokkoFilters>({
     userId: '',
@@ -86,9 +84,9 @@ const TokkoDashboardPage: React.FC = () => {
       showBackButton={true}
       backPath="/admin"
     >
-      <div className="space-y-6">
+      <div className="h-full flex flex-col">
         {/* Filtros */}
-        <Card className="p-6">
+        <Card className="p-4 mb-4">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
             <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -155,7 +153,9 @@ const TokkoDashboardPage: React.FC = () => {
         </Card>
 
         {/* Dashboard de Tokko */}
-        <TokkoDashboard filters={filters} />
+        <div className="flex-1">
+          <TokkoDashboard filters={filters} />
+        </div>
       </div>
     </AdminLayout>
   );

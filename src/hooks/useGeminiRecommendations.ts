@@ -1,0 +1,73 @@
+import { useState, useEffect } from 'react';
+import { api } from '../services/api';
+
+interface GeminiFilters {
+  startDate?: string;
+  endDate?: string;
+  userId?: string;
+  includeTokko?: boolean;
+  includeWeekly?: boolean;
+}
+
+interface GeminiResponse {
+  recommendations: string[];
+  metrics?: {
+    totalConsultas: number;
+    totalMuestras: number;
+    totalOperaciones: number;
+    conversionRates?: {
+      consultasToMuestras: string;
+      muestrasToOperaciones: string;
+    };
+  };
+  personalMetrics?: {
+    totalConsultas: number;
+    totalMuestras: number;
+    totalOperaciones: number;
+  };
+}
+
+export const useGeminiRecommendations = (type: 'general' | 'personal' | 'advanced' = 'general', filters: GeminiFilters = {}) => {
+  const [data, setData] = useState<GeminiResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchRecommendations = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      let endpoint = '';
+      
+      switch (type) {
+        case 'personal':
+          endpoint = '/gemini/advisor-recommendations';
+          break;
+        case 'advanced':
+          endpoint = '/gemini/advanced-analysis';
+          break;
+        default:
+          endpoint = '/gemini/recommendations';
+      }
+      
+      const response = await api.post(endpoint, filters);
+      setData(response.data);
+    } catch (err: any) {
+      console.error('Error fetching Gemini recommendations:', err);
+      setError(err.response?.data?.message || 'Error generando recomendaciones');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [type, JSON.stringify(filters)]);
+
+  return { 
+    data, 
+    loading, 
+    error, 
+    refetch: fetchRecommendations 
+  };
+};

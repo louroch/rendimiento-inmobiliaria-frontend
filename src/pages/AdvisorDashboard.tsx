@@ -13,6 +13,7 @@ import {
 import PerformanceForm from '../components/PerformanceForm';
 import PerformanceTable from '../components/PerformanceTable';
 import PerformanceChart from '../components/PerformanceChart';
+import GeminiRecommendations from '../components/GeminiRecommendations';
 
 interface PerformanceData {
   id: string;
@@ -172,6 +173,17 @@ const AdvisorDashboard: React.FC = () => {
           <PerformanceChart data={performanceData} />
         </div>
       )}
+
+      {/* Recomendaciones Personales de IA */}
+      <GeminiRecommendations 
+        type="personal"
+        filters={{
+          startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date().toISOString().split('T')[0]
+        }}
+        title="Recomendaciones Personales de IA"
+        showRefresh={true}
+      />
 
       {/* Performance Table */}
       <div className="card">

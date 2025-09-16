@@ -9,7 +9,8 @@ import {
   CheckCircle,
   MessageSquare,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 import PerformanceForm from './PerformanceForm';
 import { PerformanceData } from '../types/performance';
@@ -22,6 +23,8 @@ interface AdminTableProps {
 const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
   const [editingItem, setEditingItem] = useState<PerformanceData | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingItem, setViewingItem] = useState<PerformanceData | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -49,6 +52,19 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
   const handleEditSuccess = () => {
     setEditingItem(null);
     onUpdate();
+  };
+
+  const handleViewDetail = async (id: string) => {
+    try {
+      setLoadingDetail(id);
+      const response = await api.get(`/performance/${id}`);
+      setViewingItem(response.data.performance);
+    } catch (error) {
+      console.error('Error obteniendo detalles del registro:', error);
+      alert('Error al cargar los detalles del registro');
+    } finally {
+      setLoadingDetail(null);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -79,68 +95,68 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
 
   return (
     <>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Fecha
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Asesor
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 <Users className="h-4 w-4 inline mr-1" />
                 Consultas
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 <Eye className="h-4 w-4 inline mr-1" />
                 Muestras
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 <CheckCircle className="h-4 w-4 inline mr-1" />
                 Operaciones
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Seguimiento
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Tokko
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Propiedades
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Dificultad
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {currentData.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatDate(item.fecha)}
+            {currentData.map((item, index) => (
+              <tr key={item.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-150`}>
+                <td className="px-6 py-5 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">{formatDate(item.fecha)}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-5 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{item.user?.name || 'N/A'}</div>
+                    <div className="text-sm font-semibold text-gray-900">{item.user?.name || 'N/A'}</div>
                     <div className="text-sm text-gray-500">{item.user?.email || 'N/A'}</div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.consultasRecibidas}
+                <td className="px-6 py-5 whitespace-nowrap text-center">
+                  <div className="text-sm font-semibold text-gray-900">{item.consultasRecibidas}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.muestrasRealizadas}
+                <td className="px-6 py-5 whitespace-nowrap text-center">
+                  <div className="text-sm font-semibold text-gray-900">{item.muestrasRealizadas}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.operacionesCerradas}
+                <td className="px-6 py-5 whitespace-nowrap text-center">
+                  <div className="text-sm font-semibold text-gray-900">{item.operacionesCerradas}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                <td className="px-6 py-5 whitespace-nowrap">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                     item.seguimiento 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-gray-100 text-gray-800'
@@ -148,24 +164,24 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                     {item.seguimiento ? 'Sí' : 'No'}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                <td className="px-6 py-5 text-sm text-gray-900 max-w-xs">
                   {item.usoTokko ? (
                     <div className="flex items-center">
-                      <MessageSquare className="h-4 w-4 text-gray-400 mr-1 flex-shrink-0" />
-                      <span className="truncate" title={item.usoTokko}>
+                      <MessageSquare className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                      <span className="truncate font-medium" title={item.usoTokko}>
                         {item.usoTokko}
                       </span>
                     </div>
                   ) : (
-                    <span className="text-gray-400">-</span>
+                    <span className="text-gray-400 font-medium">-</span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  {item.cantidadPropiedadesTokko || '-'}
+                <td className="px-6 py-5 whitespace-nowrap text-center">
+                  <div className="text-sm font-semibold text-gray-900">{item.cantidadPropiedadesTokko || '-'}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-5 whitespace-nowrap">
                   {item.dificultadTokko !== null ? (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                       item.dificultadTokko 
                         ? 'bg-red-100 text-red-800' 
                         : 'bg-green-100 text-green-800'
@@ -173,14 +189,26 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                       {item.dificultadTokko ? 'Sí' : 'No'}
                     </span>
                   ) : (
-                    <span className="text-gray-400">-</span>
+                    <span className="text-gray-400 font-medium">-</span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
+                <td className="px-6 py-5 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleViewDetail(item.id)}
+                      disabled={loadingDetail === item.id}
+                      className="text-blue-600 hover:text-blue-900 disabled:opacity-50 transition-colors duration-150"
+                      title="Ver detalles"
+                    >
+                      {loadingDetail === item.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      ) : (
+                        <FileText className="h-4 w-4" />
+                      )}
+                    </button>
                     <button
                       onClick={() => handleEdit(item)}
-                      className="text-primary-600 hover:text-primary-900"
+                      className="text-primary-600 hover:text-primary-900 transition-colors duration-150"
                       title="Editar"
                     >
                       <Edit className="h-4 w-4" />
@@ -188,7 +216,7 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                     <button
                       onClick={() => handleDelete(item.id)}
                       disabled={deletingId === item.id}
-                      className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                      className="text-red-600 hover:text-red-900 disabled:opacity-50 transition-colors duration-150"
                       title="Eliminar"
                     >
                       {deletingId === item.id ? (
@@ -276,6 +304,148 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
           onClose={() => setEditingItem(null)}
           onSuccess={handleEditSuccess}
         />
+      )}
+
+      {/* Detail Modal */}
+      {viewingItem && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75" onClick={() => setViewingItem(null)}></div>
+            </div>
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Detalles del Registro
+                  </h3>
+                  <button
+                    onClick={() => setViewingItem(null)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Información del Usuario */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Información del Usuario</h4>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Nombre:</span>
+                        <p className="text-sm text-gray-900">{viewingItem.user?.name || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Email:</span>
+                        <p className="text-sm text-gray-900">{viewingItem.user?.email || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Fecha del Registro:</span>
+                        <p className="text-sm text-gray-900">{formatDate(viewingItem.fecha)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Métricas Principales */}
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Métricas Principales</h4>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">{viewingItem.consultasRecibidas}</div>
+                        <div className="text-xs text-gray-600">Consultas</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">{viewingItem.muestrasRealizadas}</div>
+                        <div className="text-xs text-gray-600">Muestras</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">{viewingItem.operacionesCerradas}</div>
+                        <div className="text-xs text-gray-600">Operaciones</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seguimiento */}
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Seguimiento</h4>
+                    <div className="flex items-center">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                        viewingItem.seguimiento 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {viewingItem.seguimiento ? 'Sí' : 'No'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tokko */}
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Información de Tokko</h4>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Propiedades:</span>
+                        <p className="text-sm text-gray-900">{viewingItem.cantidadPropiedadesTokko || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Uso:</span>
+                        <p className="text-sm text-gray-900">{viewingItem.usoTokko || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Dificultad:</span>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                          viewingItem.dificultadTokko 
+                            ? 'bg-red-100 text-red-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {viewingItem.dificultadTokko ? 'Sí' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Observaciones */}
+                {viewingItem.observaciones && (
+                  <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Observaciones</h4>
+                    <p className="text-sm text-gray-900">{viewingItem.observaciones}</p>
+                  </div>
+                )}
+
+                {/* Detalle de Dificultad */}
+                {viewingItem.detalleDificultadTokko && (
+                  <div className="mt-4 bg-red-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Detalle de Dificultad</h4>
+                    <p className="text-sm text-gray-900">{viewingItem.detalleDificultadTokko}</p>
+                  </div>
+                )}
+
+                {/* Links de Tokko */}
+                {viewingItem.linksTokko && (
+                  <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Links de Tokko</h4>
+                    <div className="text-sm text-gray-900 break-all">{viewingItem.linksTokko}</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  onClick={() => setViewingItem(null)}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

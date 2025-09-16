@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-  BarChart3, 
   Database, 
   Users, 
   LogOut, 
@@ -11,7 +10,9 @@ import {
   ArrowLeft,
   Home,
   TrendingUp,
-  UserPlus
+  UserPlus,
+  Building2,
+  Calendar
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -41,6 +42,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Home, current: location.pathname === '/admin' },
+    { name: 'Dashboard Tokko', href: '/admin/tokko', icon: Building2, current: location.pathname === '/admin/tokko' },
+    { name: 'Desempeño Semanal', href: '/admin/weekly', icon: Calendar, current: location.pathname === '/admin/weekly' },
     { name: 'Registros', href: '/admin/records', icon: Database, current: location.pathname === '/admin/records' },
     { name: 'Nuevo Agente', href: '/admin/new-agent', icon: UserPlus, current: location.pathname === '/admin/new-agent' },
     { name: 'Usuarios', href: '/admin/users', icon: Users, current: location.pathname === '/admin/users' },
@@ -55,17 +58,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         <div className="flex flex-col justify-between h-screen bg-[#240046]">
           {/* Top Section - Logo and Navigation */}
           <div className="flex-1">
-            {/* Logo Header */}
-            <div className="flex items-center justify-between h-16 px-6 border-b border-[#5a189a]">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                  <BarChart3 className="h-6 w-6 text-[#240046]" />
-                </div>
-                <div>
-                  <span className="text-white font-bold text-lg">Admin Panel</span>
-                  <p className="text-xs text-gray-300">Sistema de Rendimiento</p>
-                </div>
-              </div>
+            {/* Header */}
+            <div className="flex items-center justify-end h-16 px-6 border-b border-[#5a189a]">
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="lg:hidden text-white hover:text-gray-300 p-1 rounded-md hover:bg-[#5a189a]"

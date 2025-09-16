@@ -105,3 +105,159 @@ export interface TokkoStats {
   porAgente: TokkoPorAgente[];
   registros: TokkoRegistro[];
 }
+
+// Tipos para Desempeño Semanal
+export interface SemanaInfo {
+  numero: number;
+  inicio: string;
+  fin: string;
+  inicioFormateado: string;
+  finFormateado: string;
+}
+
+export interface CambioMetrica {
+  value: number;
+  percentage: number;
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface ResumenSemanal {
+  totalRegistros: number;
+  consultasRecibidas: number;
+  muestrasRealizadas: number;
+  operacionesCerradas: number;
+  propiedadesTokko: number;
+  porcentajeSeguimiento: number;
+  porcentajeDificultad: number;
+}
+
+export interface PromediosSemanal {
+  consultasPorDia: number;
+  muestrasPorDia: number;
+  operacionesPorDia: number;
+  propiedadesPorDia: number;
+}
+
+export interface CambiosSemanal {
+  consultas: CambioMetrica;
+  muestras: CambioMetrica;
+  operaciones: CambioMetrica;
+  propiedades: CambioMetrica;
+}
+
+export interface SemanaAnterior {
+  inicio: string;
+  fin: string;
+  totalRegistros: number;
+  consultasRecibidas: number;
+  muestrasRealizadas: number;
+  operacionesCerradas: number;
+  propiedadesTokko: number;
+}
+
+export interface WeeklyStats {
+  semana: SemanaInfo;
+  resumen: ResumenSemanal;
+  promedios: PromediosSemanal;
+  cambios: CambiosSemanal;
+  semanaAnterior: SemanaAnterior;
+}
+
+export interface AgenteSemanal {
+  agente: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  semanaActual: {
+    totalRegistros: number;
+    consultasRecibidas: number;
+    muestrasRealizadas: number;
+    operacionesCerradas: number;
+    propiedadesTokko: number;
+    promedioConsultas: number;
+    promedioMuestras: number;
+    promedioOperaciones: number;
+    promedioPropiedades: number;
+  };
+  semanaAnterior: {
+    totalRegistros: number;
+    consultasRecibidas: number;
+    muestrasRealizadas: number;
+    operacionesCerradas: number;
+    propiedadesTokko: number;
+  };
+  cambios: {
+    consultas: CambioMetrica;
+    muestras: CambioMetrica;
+    operaciones: CambioMetrica;
+    propiedades: CambioMetrica;
+  };
+}
+
+export interface WeeklyAgentsStats {
+  semana: SemanaInfo;
+  agentes: AgenteSemanal[];
+  totalAgentes: number;
+}
+
+export interface EquipoSemanal {
+  totalAgentes: number;
+  totalRegistros: number;
+  consultasRecibidas: number;
+  muestrasRealizadas: number;
+  operacionesCerradas: number;
+  propiedadesTokko: number;
+  promedioPorAgente: {
+    consultas: number;
+    muestras: number;
+    operaciones: number;
+    propiedades: number;
+  };
+}
+
+export interface TasasConversion {
+  consultasToMuestras: number;
+  muestrasToOperaciones: number;
+  consultasToOperaciones: number;
+}
+
+export interface RankingAgente {
+  agente: {
+    name: string;
+    email: string;
+  };
+  consultas: number;
+  muestras: number;
+  operaciones: number;
+  propiedades: number;
+  registros: number;
+}
+
+export interface WeeklyTeamStats {
+  semana: SemanaInfo;
+  equipo: EquipoSemanal;
+  tasasConversion: TasasConversion;
+  cambios: CambiosSemanal;
+  ranking: RankingAgente[];
+  semanaAnterior: SemanaAnterior;
+}
+
+export interface WeeklyExportData {
+  success: boolean;
+  data: {
+    metadata: {
+      semana: SemanaInfo;
+      generado: string;
+      formato: string;
+    };
+    resumen: ResumenSemanal;
+    agentes: AgenteSemanal[];
+  };
+  message: string;
+  instructions: {
+    frontend: string;
+    campos: string[];
+  };
+}
