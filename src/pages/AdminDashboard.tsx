@@ -17,7 +17,6 @@ import { Card, Metric, Text, Flex, Button, Select, SelectItem } from '@tremor/re
 import AdminLayout from '../components/AdminLayout';
 import AdminChart from '../components/AdminChart';
 import AdminTable from '../components/AdminTable';
-import GeminiRecommendations from '../components/GeminiRecommendations';
 
 interface PerformanceData {
   id: string;
@@ -424,16 +423,36 @@ const AdminDashboard: React.FC = () => {
             <AdminChart data={performanceData} />
           </Card>
 
-          <GeminiRecommendations 
-            type="general"
-            filters={{
-              startDate: filters.startDate,
-              endDate: filters.endDate,
-              userId: filters.userId
-            }}
-            title="Recomendaciones de IA"
-            className="p-3 sm:p-4"
-          />
+          <Card className="p-3 sm:p-4">
+            <Flex alignItems="center" className="space-x-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-gray-600" />
+              <Text className="text-sm sm:text-base font-medium text-gray-900">Resumen de Eficiencia</Text>
+            </Flex>
+            <div className="space-y-2">
+              <Flex justifyContent="between" alignItems="center">
+                <Text className="text-xs text-gray-600 truncate">Consultas por día promedio:</Text>
+                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.consultasRecibidas}</span>
+              </Flex>
+              <Flex justifyContent="between" alignItems="center">
+                <Text className="text-xs text-gray-600 truncate">Muestras por día promedio:</Text>
+                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.muestrasRealizadas}</span>
+              </Flex>
+              <Flex justifyContent="between" alignItems="center">
+                <Text className="text-xs text-gray-600 truncate">Operaciones por día promedio:</Text>
+                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.operacionesCerradas}</span>
+              </Flex>
+              <div className="border-t pt-2">
+                <Flex justifyContent="between" alignItems="center">
+                  <Text className="text-xs font-medium text-gray-900 truncate">Eficiencia general:</Text>
+                  <span className="text-xs font-bold text-green-600 flex-shrink-0 ml-2">
+                    {stats.totals.consultasRecibidas > 0 
+                      ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
+                      : 0}%
+                  </span>
+                </Flex>
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Tabla de Desempeño */}
@@ -449,20 +468,6 @@ const AdminDashboard: React.FC = () => {
             />
           </div>
         </Card>
-
-        {/* Análisis Avanzado con IA */}
-        <GeminiRecommendations 
-          type="advanced"
-          filters={{
-            startDate: filters.startDate,
-            endDate: filters.endDate,
-            userId: filters.userId,
-            includeTokko: true,
-            includeWeekly: true
-          }}
-          title="Análisis Avanzado con IA"
-          showRefresh={true}
-        />
       </div>
     </AdminLayout>
   );

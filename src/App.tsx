@@ -11,6 +11,7 @@ import NewAgent from './pages/NewAgent';
 import AdminUsers from './pages/AdminUsers';
 import TokkoDashboard from './pages/TokkoDashboard';
 import WeeklyDashboard from './pages/WeeklyDashboard';
+import AIRecommendations from './pages/AIRecommendations';
 import Layout from './components/Layout';
 
 function App() {
@@ -57,6 +58,11 @@ function App() {
             <Route path="/admin/weekly" element={
               <ProtectedRoute requireAdmin>
                 <WeeklyDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/ai-recommendations" element={
+              <ProtectedRoute requireAdmin>
+                <AIRecommendations />
               </ProtectedRoute>
             } />
             

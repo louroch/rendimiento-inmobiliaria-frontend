@@ -12,7 +12,8 @@ import {
   TrendingUp,
   UserPlus,
   Building2,
-  Calendar
+  Calendar,
+  Brain
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -44,6 +45,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     { name: 'Dashboard', href: '/admin', icon: Home, current: location.pathname === '/admin' },
     { name: 'Dashboard Tokko', href: '/admin/tokko', icon: Building2, current: location.pathname === '/admin/tokko' },
     { name: 'Desempeño Semanal', href: '/admin/weekly', icon: Calendar, current: location.pathname === '/admin/weekly' },
+    { name: 'Recomendaciones IA', href: '/admin/ai-recommendations', icon: Brain, current: location.pathname === '/admin/ai-recommendations' },
     { name: 'Registros', href: '/admin/records', icon: Database, current: location.pathname === '/admin/records' },
     { name: 'Nuevo Agente', href: '/admin/new-agent', icon: UserPlus, current: location.pathname === '/admin/new-agent' },
     { name: 'Usuarios', href: '/admin/users', icon: Users, current: location.pathname === '/admin/users' },
