@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText } from 'lucide-react';
+import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText, Target } from 'lucide-react';
 import { api } from '../services/api';
 
 interface FormData {
@@ -17,6 +17,8 @@ interface FormData {
   dificultadTokko: boolean | null;
   detalleDificultadTokko: string;
   observaciones: string;
+  // Campo de captaciones
+  numeroCaptaciones: string | number;
 }
 
 const NewRecord: React.FC = () => {
@@ -34,7 +36,9 @@ const NewRecord: React.FC = () => {
     linksTokko: '',
     dificultadTokko: null,
     detalleDificultadTokko: '',
-    observaciones: ''
+    observaciones: '',
+    // Campo de captaciones
+    numeroCaptaciones: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +94,8 @@ const NewRecord: React.FC = () => {
         linksTokko: formData.linksTokko?.trim() || null,
         dificultadTokko: formData.dificultadTokko,
         detalleDificultadTokko: formData.detalleDificultadTokko?.trim() || null,
-        observaciones: formData.observaciones?.trim() || null
+        observaciones: formData.observaciones?.trim() || null,
+        numeroCaptaciones: formData.numeroCaptaciones ? Number(formData.numeroCaptaciones) : null
       };
 
       // Log para debugging
@@ -113,7 +118,8 @@ const NewRecord: React.FC = () => {
           linksTokko: '',
           dificultadTokko: null,
           detalleDificultadTokko: '',
-          observaciones: ''
+          observaciones: '',
+          numeroCaptaciones: ''
         });
         setShowDetalleDificultad(false);
         setSuccess(false);
@@ -235,8 +241,8 @@ const NewRecord: React.FC = () => {
                   />
                 </div>
 
-                {/* Métricas en tres columnas */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {/* Métricas en cuatro columnas */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Users className="h-4 w-4 inline mr-2" />
@@ -282,6 +288,22 @@ const NewRecord: React.FC = () => {
                       min="0"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Target className="h-4 w-4 inline mr-2" />
+                      Número de Captaciones
+                    </label>
+                    <input
+                      type="number"
+                      name="numeroCaptaciones"
+                      value={formData.numeroCaptaciones}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      placeholder="Ej: 3"
                     />
                   </div>
                 </div>
