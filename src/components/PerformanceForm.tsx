@@ -3,14 +3,16 @@ import { api } from '../services/api';
 import { X, Calendar, Users, Eye, CheckCircle, MessageSquare, Link, AlertCircle, FileText, Target } from 'lucide-react';
 import { PerformanceData } from '../types/performance';
 import { prepareDateForBackend, getTodayDateString } from '../utils/dateUtils';
+import { isAgentWithoutSamples, getAgentWithoutSamplesMessage } from '../utils/agentUtils';
 
 interface PerformanceFormProps {
   onClose: () => void;
   onSuccess: () => void;
   editData?: PerformanceData;
+  userEmail?: string;
 }
 
-const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, editData }) => {
+const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, editData, userEmail }) => {
   const [formData, setFormData] = useState({
     fecha: editData?.fecha ? new Date(editData.fecha).toISOString().split('T')[0] : getTodayDateString(),
     consultasRecibidas: editData?.consultasRecibidas || 0,
@@ -44,6 +46,7 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
       const dataToSend = {
         ...formData,
         fecha: prepareDateForBackend(formData.fecha), // Mediodía UTC para evitar problemas de zona horaria
+        muestrasRealizadas: isAgentWithoutSamples(userEmail || '') ? 0 : (Number(formData.muestrasRealizadas) || 0), // 0 para agentes sin muestras
         cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko || null,
         linksTokko: formData.linksTokko || null,
         detalleDificultadTokko: formData.detalleDificultadTokko || null,
@@ -148,22 +151,46 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <Eye className="h-4 w-4 inline mr-1" />
-                Muestras Realizadas
-              </label>
-              <input
-                type="number"
-                name="muestrasRealizadas"
-                value={formData.muestrasRealizadas}
-                onChange={handleChange}
-                min="0"
-                required
-                className="input-field"
-                placeholder="Número de visitas/demostraciones"
-              />
-            </div>
+            {/* Campo de Muestras - Condicional para agentes sin muestras */}
+            {!isAgentWithoutSamples(userEmail || '') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Eye className="h-4 w-4 inline mr-1" />
+                  Muestras Realizadas
+                </label>
+                <input
+                  type="number"
+                  name="muestrasRealizadas"
+                  value={formData.muestrasRealizadas}
+                  onChange={handleChange}
+                  min="0"
+                  required
+                  className="input-field"
+                  placeholder="Número de visitas/demostraciones"
+                />
+              </div>
+            )}
+
+            {/* Mensaje informativo para agentes sin muestras */}
+            {isAgentWithoutSamples(userEmail || '') && (
+              <div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <Eye className="h-4 w-4 text-blue-400" />
+                    </div>
+                    <div className="ml-2">
+                      <p className="text-sm text-blue-800 font-medium">
+                        Muestras Realizadas
+                      </p>
+                      <p className="text-xs text-blue-600">
+                        {getAgentWithoutSamplesMessage()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

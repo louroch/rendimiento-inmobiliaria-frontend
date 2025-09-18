@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText, Target } from 'lucide-react';
 import { api } from '../services/api';
 import { prepareDateForBackend, getTodayDateString } from '../utils/dateUtils';
+import { isAgentWithoutSamples, getAgentWithoutSamplesMessage } from '../utils/agentUtils';
 
 interface FormData {
   fecha: string;
@@ -87,7 +88,7 @@ const NewRecord: React.FC = () => {
       const dataToSend = {
         fecha: prepareDateForBackend(formData.fecha), // Mediodía UTC para evitar problemas de zona horaria
         consultasRecibidas: Number(formData.consultasRecibidas) || 0,
-        muestrasRealizadas: Number(formData.muestrasRealizadas) || 0,
+        muestrasRealizadas: isAgentWithoutSamples(user?.email || '') ? 0 : (Number(formData.muestrasRealizadas) || 0), // 0 para agentes sin muestras
         operacionesCerradas: Number(formData.operacionesCerradas) || 0,
         seguimiento: Boolean(formData.seguimiento),
         usoTokko: formData.usoTokko?.trim() || null,
@@ -242,8 +243,8 @@ const NewRecord: React.FC = () => {
                   />
                 </div>
 
-                {/* Métricas en cuatro columnas */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {/* Métricas - Grid dinámico según tipo de agente */}
+                <div className={`grid grid-cols-1 sm:grid-cols-2 ${isAgentWithoutSamples(user?.email || '') ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-4 sm:gap-6`}>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Users className="h-4 w-4 inline mr-2" />
@@ -260,21 +261,45 @@ const NewRecord: React.FC = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Eye className="h-4 w-4 inline mr-2" />
-                      Muestras Realizadas
-                    </label>
-                    <input
-                      type="number"
-                      name="muestrasRealizadas"
-                      value={formData.muestrasRealizadas}
-                      onChange={handleChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
-                      required
-                    />
-                  </div>
+                  {/* Campo de Muestras - Condicional para agentes sin muestras */}
+                  {!isAgentWithoutSamples(user?.email || '') && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Eye className="h-4 w-4 inline mr-2" />
+                        Muestras Realizadas
+                      </label>
+                      <input
+                        type="number"
+                        name="muestrasRealizadas"
+                        value={formData.muestrasRealizadas}
+                        onChange={handleChange}
+                        min="0"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* Mensaje informativo para agentes sin muestras */}
+                  {isAgentWithoutSamples(user?.email || '') && (
+                    <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <Eye className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm text-blue-800 font-medium">
+                              Muestras Realizadas
+                            </p>
+                            <p className="text-xs text-blue-600 mt-1">
+                              {getAgentWithoutSamplesMessage()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

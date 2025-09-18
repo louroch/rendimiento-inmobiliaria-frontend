@@ -18,9 +18,10 @@ interface PerformanceTableProps {
   data: PerformanceData[];
   onUpdate: () => void;
   onDelete: () => void;
+  userEmail?: string;
 }
 
-const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onDelete }) => {
+const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onDelete, userEmail }) => {
   const [editingItem, setEditingItem] = useState<PerformanceData | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -203,6 +204,7 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onD
           editData={editingItem}
           onClose={() => setEditingItem(null)}
           onSuccess={handleEditSuccess}
+          userEmail={userEmail}
         />
       )}
     </>
