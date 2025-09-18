@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
-import { X, Calendar, Users, Eye, CheckCircle, MessageSquare, Link, AlertCircle, FileText } from 'lucide-react';
+import { X, Calendar, Users, Eye, CheckCircle, MessageSquare, Link, AlertCircle, FileText, Target } from 'lucide-react';
 import { PerformanceData } from '../types/performance';
 
 interface PerformanceFormProps {
@@ -22,7 +22,9 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
     linksTokko: editData?.linksTokko || '',
     dificultadTokko: editData?.dificultadTokko !== undefined ? editData.dificultadTokko : null,
     detalleDificultadTokko: editData?.detalleDificultadTokko || '',
-    observaciones: editData?.observaciones || ''
+    observaciones: editData?.observaciones || '',
+    // Campo de captaciones
+    numeroCaptaciones: editData?.numeroCaptaciones || ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -43,7 +45,8 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
         cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko || null,
         linksTokko: formData.linksTokko || null,
         detalleDificultadTokko: formData.detalleDificultadTokko || null,
-        observaciones: formData.observaciones || null
+        observaciones: formData.observaciones || null,
+        numeroCaptaciones: formData.numeroCaptaciones || null
       };
 
       if (editData) {
@@ -174,6 +177,22 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
                 required
                 className="input-field"
                 placeholder="Número de ventas/acuerdos finalizados"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <Target className="h-4 w-4 inline mr-1" />
+                Número de Captaciones
+              </label>
+              <input
+                type="number"
+                name="numeroCaptaciones"
+                value={formData.numeroCaptaciones}
+                onChange={handleChange}
+                min="0"
+                className="input-field"
+                placeholder="Número de captaciones realizadas"
               />
             </div>
 

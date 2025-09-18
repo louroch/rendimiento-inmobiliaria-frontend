@@ -22,6 +22,7 @@ interface PerformanceData {
   operacionesCerradas: number;
   seguimiento: boolean;
   usoTokko: string | null;
+  numeroCaptaciones?: number | null;
   user: {
     id: string;
     name: string;
@@ -43,6 +44,7 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
       consultas: item.consultasRecibidas,
       muestras: item.muestrasRealizadas,
       operaciones: item.operacionesCerradas,
+      captaciones: item.numeroCaptaciones || 0,
       asesor: item.user.name
     }));
 
@@ -54,12 +56,14 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
         asesor,
         consultas: 0,
         muestras: 0,
-        operaciones: 0
+        operaciones: 0,
+        captaciones: 0
       };
     }
     acc[asesor].consultas += item.consultasRecibidas;
     acc[asesor].muestras += item.muestrasRealizadas;
     acc[asesor].operaciones += item.operacionesCerradas;
+    acc[asesor].captaciones += item.numeroCaptaciones || 0;
     return acc;
   }, {} as Record<string, any>);
 
@@ -136,6 +140,14 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
               name="Operaciones"
               dot={{ fill: '#9d4edd', strokeWidth: 2, r: 3 }}
             />
+            <Line 
+              type="monotone" 
+              dataKey="captaciones" 
+              stroke="#f59e0b" 
+              strokeWidth={2}
+              name="Captaciones"
+              dot={{ fill: '#f59e0b', strokeWidth: 2, r: 3 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -163,6 +175,7 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
               <Bar dataKey="consultas" fill="#240046" name="Consultas" />
               <Bar dataKey="muestras" fill="#5a189a" name="Muestras" />
               <Bar dataKey="operaciones" fill="#9d4edd" name="Operaciones" />
+              <Bar dataKey="captaciones" fill="#f59e0b" name="Captaciones" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -195,7 +208,7 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
       )}
 
       {/* Métricas de resumen */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-gray-200">
         <div className="text-center">
           <div className="text-lg font-bold" style={{ color: '#240046' }}>
             {data.reduce((sum, item) => sum + item.consultasRecibidas, 0)}
@@ -213,6 +226,12 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
             {data.reduce((sum, item) => sum + item.operacionesCerradas, 0)}
           </div>
           <div className="text-xs text-gray-500">Total Operaciones</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold" style={{ color: '#f59e0b' }}>
+            {data.reduce((sum, item) => sum + (item.numeroCaptaciones || 0), 0)}
+          </div>
+          <div className="text-xs text-gray-500">Total Captaciones</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-bold" style={{ color: '#c77dff' }}>

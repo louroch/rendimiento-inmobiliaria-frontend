@@ -11,7 +11,8 @@ import {
   Users,
   Eye,
   CheckCircle,
-  Percent
+  Percent,
+  Target
 } from 'lucide-react';
 import { Card, Metric, Text, Flex, Button, Select, SelectItem } from '@tremor/react';
 import AdminLayout from '../components/AdminLayout';
@@ -26,6 +27,7 @@ interface PerformanceData {
   operacionesCerradas: number;
   seguimiento: boolean;
   usoTokko: string | null;
+  numeroCaptaciones?: number | null;
   user: {
     id: string;
     name: string;
@@ -60,12 +62,14 @@ const AdminDashboard: React.FC = () => {
     totals: {
       consultasRecibidas: 0,
       muestrasRealizadas: 0,
-      operacionesCerradas: 0
+      operacionesCerradas: 0,
+      numeroCaptaciones: 0
     },
     averages: {
       consultasRecibidas: 0,
       muestrasRealizadas: 0,
-      operacionesCerradas: 0
+      operacionesCerradas: 0,
+      numeroCaptaciones: 0
     },
     conversionRates: {
       consultasToMuestras: 0,
@@ -129,13 +133,14 @@ const AdminDashboard: React.FC = () => {
 
   const exportData = () => {
     const csvContent = [
-      ['Fecha', 'Asesor', 'Consultas', 'Muestras', 'Operaciones', 'Seguimiento', 'Tokko'],
+      ['Fecha', 'Asesor', 'Consultas', 'Muestras', 'Operaciones', 'Captaciones', 'Seguimiento', 'Tokko'],
       ...performanceData.map(item => [
         new Date(item.fecha).toLocaleDateString('es-ES'),
         item.user.name,
         item.consultasRecibidas,
         item.muestrasRealizadas,
         item.operacionesCerradas,
+        item.numeroCaptaciones || 0,
         item.seguimiento ? 'Sí' : 'No',
         item.usoTokko || ''
       ])
@@ -326,6 +331,22 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
                 <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" style={{ height: '1rem', width: '1rem' }} />
+              </div>
+            </Flex>
+          </Card>
+
+          {/* Total Captaciones */}
+          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
+            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
+              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
+                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
+                  {filters.userId ? 'Captaciones del Agente' : 'Total Captaciones'}
+                </Text>
+                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.numeroCaptaciones}</Metric>
+                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.numeroCaptaciones}</Text>
+              </div>
+              <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" style={{ height: '1rem', width: '1rem' }} />
               </div>
             </Flex>
           </Card>

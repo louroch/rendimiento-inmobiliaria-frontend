@@ -19,6 +19,7 @@ interface PerformanceData {
   operacionesCerradas: number;
   seguimiento: boolean;
   usoTokko: string | null;
+  numeroCaptaciones?: number | null;
   createdAt: string;
 }
 
@@ -35,6 +36,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       consultas: item.consultasRecibidas,
       muestras: item.muestrasRealizadas,
       operaciones: item.operacionesCerradas,
+      captaciones: item.numeroCaptaciones || 0,
       conversionRate: item.consultasRecibidas > 0 
         ? (item.operacionesCerradas / item.consultasRecibidas * 100).toFixed(1)
         : 0
@@ -101,6 +103,14 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
               name="Operaciones"
               dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 3 }}
             />
+            <Line 
+              type="monotone" 
+              dataKey="captaciones" 
+              stroke="#f59e0b" 
+              strokeWidth={2}
+              name="Captaciones"
+              dot={{ fill: '#f59e0b', strokeWidth: 2, r: 3 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -127,12 +137,13 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
             <Bar dataKey="consultas" fill="#3b82f6" name="Consultas" />
             <Bar dataKey="muestras" fill="#10b981" name="Muestras" />
             <Bar dataKey="operaciones" fill="#8b5cf6" name="Operaciones" />
+            <Bar dataKey="captaciones" fill="#f59e0b" name="Captaciones" />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Resumen de métricas */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
         <div className="text-center">
           <div className="text-xl sm:text-2xl font-bold text-blue-600">
             {data.reduce((sum, item) => sum + item.consultasRecibidas, 0)}
@@ -150,6 +161,12 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
             {data.reduce((sum, item) => sum + item.operacionesCerradas, 0)}
           </div>
           <div className="text-xs sm:text-sm text-gray-500">Total Operaciones</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xl sm:text-2xl font-bold text-amber-600">
+            {data.reduce((sum, item) => sum + (item.numeroCaptaciones || 0), 0)}
+          </div>
+          <div className="text-xs sm:text-sm text-gray-500">Total Captaciones</div>
         </div>
       </div>
     </div>

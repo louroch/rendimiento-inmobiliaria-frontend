@@ -13,6 +13,8 @@ export interface PerformanceData {
   dificultadTokko?: boolean | null;
   detalleDificultadTokko?: string | null;
   observaciones?: string | null;
+  // Campo de captaciones
+  numeroCaptaciones?: number | null;
   user?: {
     id: string;
     name: string;
@@ -36,6 +38,8 @@ export interface PerformanceFormData {
   dificultadTokko: boolean | null;
   detalleDificultadTokko: string;
   observaciones: string;
+  // Campo de captaciones
+  numeroCaptaciones: string | number;
 }
 
 // Tipos para las métricas de Tokko CRM
@@ -127,6 +131,7 @@ export interface ResumenSemanal {
   muestrasRealizadas: number;
   operacionesCerradas: number;
   propiedadesTokko: number;
+  numeroCaptaciones: number;
   porcentajeSeguimiento: number;
   porcentajeDificultad: number;
 }
@@ -136,6 +141,7 @@ export interface PromediosSemanal {
   muestrasPorDia: number;
   operacionesPorDia: number;
   propiedadesPorDia: number;
+  captacionesPorDia: number;
 }
 
 export interface CambiosSemanal {
@@ -143,6 +149,7 @@ export interface CambiosSemanal {
   muestras: CambioMetrica;
   operaciones: CambioMetrica;
   propiedades: CambioMetrica;
+  captaciones: CambioMetrica;
 }
 
 export interface SemanaAnterior {
@@ -153,6 +160,7 @@ export interface SemanaAnterior {
   muestrasRealizadas: number;
   operacionesCerradas: number;
   propiedadesTokko: number;
+  numeroCaptaciones: number;
 }
 
 export interface WeeklyStats {
@@ -176,10 +184,12 @@ export interface AgenteSemanal {
     muestrasRealizadas: number;
     operacionesCerradas: number;
     propiedadesTokko: number;
+    numeroCaptaciones: number;
     promedioConsultas: number;
     promedioMuestras: number;
     promedioOperaciones: number;
     promedioPropiedades: number;
+    promedioCaptaciones: number;
   };
   semanaAnterior: {
     totalRegistros: number;
@@ -187,12 +197,14 @@ export interface AgenteSemanal {
     muestrasRealizadas: number;
     operacionesCerradas: number;
     propiedadesTokko: number;
+    numeroCaptaciones: number;
   };
   cambios: {
     consultas: CambioMetrica;
     muestras: CambioMetrica;
     operaciones: CambioMetrica;
     propiedades: CambioMetrica;
+    captaciones: CambioMetrica;
   };
 }
 
@@ -209,11 +221,13 @@ export interface EquipoSemanal {
   muestrasRealizadas: number;
   operacionesCerradas: number;
   propiedadesTokko: number;
+  numeroCaptaciones: number;
   promedioPorAgente: {
     consultas: number;
     muestras: number;
     operaciones: number;
     propiedades: number;
+    captaciones: number;
   };
 }
 
@@ -232,6 +246,7 @@ export interface RankingAgente {
   muestras: number;
   operaciones: number;
   propiedades: number;
+  captaciones: number;
   registros: number;
 }
 

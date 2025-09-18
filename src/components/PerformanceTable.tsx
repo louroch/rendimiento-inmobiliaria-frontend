@@ -7,7 +7,8 @@ import {
   Users, 
   Eye, 
   CheckCircle,
-  MessageSquare
+  MessageSquare,
+  Target
 } from 'lucide-react';
 import PerformanceForm from './PerformanceForm';
 import { PerformanceData } from '../types/performance';
@@ -93,6 +94,11 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onD
                 <span className="sm:hidden">O</span>
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <Target className="h-4 w-4 inline mr-1" />
+                <span className="hidden sm:inline">Captaciones</span>
+                <span className="sm:hidden">C</span>
+              </th>
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <span className="hidden sm:inline">Seguimiento</span>
                 <span className="sm:hidden">S</span>
               </th>
@@ -124,6 +130,9 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onD
                 </td>
                 <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
                   {item.operacionesCerradas}
+                </td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
+                  {item.numeroCaptaciones || '-'}
                 </td>
                 <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
