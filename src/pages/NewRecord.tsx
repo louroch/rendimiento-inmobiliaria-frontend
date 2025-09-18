@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Save, Calendar, Users, Eye, CheckCircle, BarChart3, LogOut, Link, AlertCircle, FileText, Target } from 'lucide-react';
 import { api } from '../services/api';
+import { prepareDateForBackend, getTodayDateString } from '../utils/dateUtils';
 
 interface FormData {
   fecha: string;
@@ -25,7 +26,7 @@ const NewRecord: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: getTodayDateString(),
     consultasRecibidas: 0,
     muestrasRealizadas: 0,
     operacionesCerradas: 0,
@@ -46,7 +47,7 @@ const NewRecord: React.FC = () => {
   const [showDetalleDificultad, setShowDetalleDificultad] = useState(false);
 
   // Obtener la fecha de hoy para validación
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDateString();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -84,7 +85,7 @@ const NewRecord: React.FC = () => {
     try {
       // Preparar datos para envío
       const dataToSend = {
-        fecha: formData.fecha,
+        fecha: prepareDateForBackend(formData.fecha), // Mediodía UTC para evitar problemas de zona horaria
         consultasRecibidas: Number(formData.consultasRecibidas) || 0,
         muestrasRealizadas: Number(formData.muestrasRealizadas) || 0,
         operacionesCerradas: Number(formData.operacionesCerradas) || 0,
@@ -108,7 +109,7 @@ const NewRecord: React.FC = () => {
       // Resetear formulario después de 2 segundos
       setTimeout(() => {
         setFormData({
-          fecha: new Date().toISOString().split('T')[0],
+          fecha: getTodayDateString(),
           consultasRecibidas: 0,
           muestrasRealizadas: 0,
           operacionesCerradas: 0,

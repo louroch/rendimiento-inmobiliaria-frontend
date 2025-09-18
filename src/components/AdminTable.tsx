@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import PerformanceForm from './PerformanceForm';
 import { PerformanceData } from '../types/performance';
+import { formatDateForTable } from '../utils/dateUtils';
 
 interface AdminTableProps {
   data: PerformanceData[];
@@ -68,11 +69,7 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return formatDateForTable(dateString);
   };
 
   // Paginación

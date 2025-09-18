@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { api } from '../services/api';
 import { X, Calendar, Users, Eye, CheckCircle, MessageSquare, Link, AlertCircle, FileText, Target } from 'lucide-react';
 import { PerformanceData } from '../types/performance';
+import { prepareDateForBackend, getTodayDateString } from '../utils/dateUtils';
 
 interface PerformanceFormProps {
   onClose: () => void;
@@ -11,7 +12,7 @@ interface PerformanceFormProps {
 
 const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, editData }) => {
   const [formData, setFormData] = useState({
-    fecha: editData?.fecha ? new Date(editData.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    fecha: editData?.fecha ? new Date(editData.fecha).toISOString().split('T')[0] : getTodayDateString(),
     consultasRecibidas: editData?.consultasRecibidas || 0,
     muestrasRealizadas: editData?.muestrasRealizadas || 0,
     operacionesCerradas: editData?.operacionesCerradas || 0,
@@ -31,7 +32,7 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
   const [showDetalleDificultad, setShowDetalleDificultad] = useState(editData?.dificultadTokko === true);
 
   // Obtener la fecha de hoy para validación
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDateString();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +43,7 @@ const PerformanceForm: React.FC<PerformanceFormProps> = ({ onClose, onSuccess, e
       // Preparar datos para envío, convirtiendo valores vacíos a null
       const dataToSend = {
         ...formData,
+        fecha: prepareDateForBackend(formData.fecha), // Mediodía UTC para evitar problemas de zona horaria
         cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko || null,
         linksTokko: formData.linksTokko || null,
         detalleDificultadTokko: formData.detalleDificultadTokko || null,

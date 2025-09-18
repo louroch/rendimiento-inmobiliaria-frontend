@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import PerformanceForm from './PerformanceForm';
 import { PerformanceData } from '../types/performance';
+import { formatDateForTable } from '../utils/dateUtils';
 
 interface PerformanceTableProps {
   data: PerformanceData[];
@@ -50,11 +51,7 @@ const PerformanceTable: React.FC<PerformanceTableProps> = ({ data, onUpdate, onD
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return formatDateForTable(dateString);
   };
 
   if (data.length === 0) {

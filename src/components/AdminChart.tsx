@@ -13,6 +13,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { formatDateForChart } from '../utils/dateUtils';
 
 interface PerformanceData {
   id: string;
@@ -40,7 +41,7 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
   const chartData = data
     .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
     .map(item => ({
-      fecha: new Date(item.fecha).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
+      fecha: formatDateForChart(item.fecha),
       consultas: item.consultasRecibidas,
       muestras: item.muestrasRealizadas,
       operaciones: item.operacionesCerradas,

@@ -18,6 +18,7 @@ import { Card, Metric, Text, Flex, Button, Select, SelectItem } from '@tremor/re
 import AdminLayout from '../components/AdminLayout';
 import AdminChart from '../components/AdminChart';
 import AdminTable from '../components/AdminTable';
+import { formatDateForExport } from '../utils/dateUtils';
 
 interface PerformanceData {
   id: string;
@@ -135,7 +136,7 @@ const AdminDashboard: React.FC = () => {
     const csvContent = [
       ['Fecha', 'Asesor', 'Consultas', 'Muestras', 'Operaciones', 'Captaciones', 'Seguimiento', 'Tokko'],
       ...performanceData.map(item => [
-        new Date(item.fecha).toLocaleDateString('es-ES'),
+        formatDateForExport(item.fecha),
         item.user.name,
         item.consultasRecibidas,
         item.muestrasRealizadas,
