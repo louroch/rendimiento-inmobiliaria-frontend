@@ -10,7 +10,8 @@ import {
   Building2,
   Download,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Target
 } from 'lucide-react';
 import { WeeklyService, WeeklyFilters } from '../services/weeklyService';
 import { WeeklyStats, WeeklyAgentsStats, WeeklyTeamStats } from '../types/performance';
@@ -100,7 +101,8 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
     name: agente.agente.name.split(' ')[0], // Solo primer nombre
     consultas: agente.semanaActual.consultasRecibidas,
     muestras: agente.semanaActual.muestrasRealizadas,
-    operaciones: agente.semanaActual.operacionesCerradas
+    operaciones: agente.semanaActual.operacionesCerradas,
+    captaciones: agente.semanaActual.numeroCaptaciones || 0
   }));
 
   const conversionData = [
@@ -130,7 +132,7 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
       </Card>
 
       {/* Métricas principales del equipo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="p-4">
           <Flex alignItems="center" justifyContent="between">
             <div>
@@ -187,6 +189,26 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
             </div>
             <div className="p-3 bg-purple-100 rounded-lg">
               <CheckCircle className="h-6 w-6 text-purple-600" />
+            </div>
+          </Flex>
+        </Card>
+
+        <Card className="p-4">
+          <Flex alignItems="center" justifyContent="between">
+            <div>
+              <Text className="text-sm font-medium text-gray-600">Total Captaciones</Text>
+              <Metric className="text-2xl font-bold text-gray-900">
+                {weeklyStats.resumen.numeroCaptaciones.toLocaleString()}
+              </Metric>
+              <div className="flex items-center space-x-1 mt-1">
+                {getTrendIcon(weeklyStats.cambios.captaciones.trend)}
+                <Text className={`text-xs ${getTrendColor(weeklyStats.cambios.captaciones.trend)}`}>
+                  {weeklyStats.cambios.captaciones.percentage > 0 ? '+' : ''}{weeklyStats.cambios.captaciones.percentage}%
+                </Text>
+              </div>
+            </div>
+            <div className="p-3 bg-amber-100 rounded-lg">
+              <Target className="h-6 w-6 text-amber-600" />
             </div>
           </Flex>
         </Card>
@@ -252,6 +274,7 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="consultas" fill="#3b82f6" />
+                <Bar dataKey="captaciones" fill="#f59e0b" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -294,6 +317,7 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
               <TableHeaderCell>Consultas</TableHeaderCell>
               <TableHeaderCell>Muestras</TableHeaderCell>
               <TableHeaderCell>Operaciones</TableHeaderCell>
+              <TableHeaderCell>Captaciones</TableHeaderCell>
               <TableHeaderCell>Propiedades</TableHeaderCell>
               <TableHeaderCell>Tendencia</TableHeaderCell>
             </TableRow>
@@ -320,6 +344,9 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
                 </TableCell>
                 <TableCell>
                   <Text>{agente.semanaActual.operacionesCerradas}</Text>
+                </TableCell>
+                <TableCell>
+                  <Text className="font-semibold text-amber-600">{agente.semanaActual.numeroCaptaciones || 0}</Text>
                 </TableCell>
                 <TableCell>
                   <Text>{agente.semanaActual.propiedadesTokko}</Text>
