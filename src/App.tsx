@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import AdvisorDashboard from './pages/AdvisorDashboard';
@@ -13,6 +13,33 @@ import TokkoDashboard from './pages/TokkoDashboard';
 import WeeklyDashboard from './pages/WeeklyDashboard';
 import AIRecommendations from './pages/AIRecommendations';
 import Layout from './components/Layout';
+
+// Componente para redirección inteligente basada en el rol
+const RoleBasedRedirect: React.FC = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Redirigir según el rol del usuario
+  if (user.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  } else if (user.role === 'agent') {
+    return <Navigate to="/nuevo-registro" replace />;
+  }
+
+  // Fallback (no debería llegar aquí)
+  return <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
@@ -66,14 +93,16 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Rutas legacy para compatibilidad */}
-            <Route path="/" element={
+            {/* Ruta raíz con redirección inteligente basada en rol */}
+            <Route path="/" element={<RoleBasedRedirect />} />
+            
+            {/* Ruta legacy del dashboard para compatibilidad */}
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Layout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<AdvisorDashboard />} />
+              <Route index element={<AdvisorDashboard />} />
             </Route>
           </Routes>
         </div>
