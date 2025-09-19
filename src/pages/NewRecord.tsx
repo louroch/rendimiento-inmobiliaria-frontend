@@ -46,9 +46,36 @@ const NewRecord: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showDetalleDificultad, setShowDetalleDificultad] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
 
   // Obtener la fecha de hoy para validación
   const today = getTodayDateString();
+
+  const validateField = (name: string, value: any): string | null => {
+    switch (name) {
+      case 'fecha':
+        if (!value) return 'La fecha es obligatoria';
+        break;
+      case 'consultasRecibidas':
+        if (value < 0) return 'Las consultas recibidas no pueden ser negativas';
+        break;
+      case 'operacionesCerradas':
+        if (value < 0) return 'Las operaciones cerradas no pueden ser negativas';
+        break;
+      case 'muestrasRealizadas':
+        if (!isAgentWithoutSamples(user?.email || '') && value < 0) {
+          return 'Las muestras realizadas no pueden ser negativas';
+        }
+        break;
+      case 'numeroCaptaciones':
+        if (value && value < 0) return 'El número de captaciones no puede ser negativo';
+        break;
+      case 'cantidadPropiedadesTokko':
+        if (value && value < 0) return 'La cantidad de propiedades no puede ser negativa';
+        break;
+    }
+    return null;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -61,6 +88,13 @@ const NewRecord: React.FC = () => {
     } else if (type === 'checkbox') {
       processedValue = (e.target as HTMLInputElement).checked;
     }
+
+    // Validar el campo
+    const error = validateField(name, processedValue);
+    setValidationErrors(prev => ({
+      ...prev,
+      [name]: error || ''
+    }));
 
     setFormData({
       ...formData,
@@ -84,21 +118,64 @@ const NewRecord: React.FC = () => {
     setSuccess(false);
 
     try {
-      // Preparar datos para envío
-      const dataToSend = {
-        fecha: prepareDateForBackend(formData.fecha), // Mediodía UTC para evitar problemas de zona horaria
+      // Validación básica del formulario
+      if (!formData.fecha) {
+        throw new Error('La fecha es obligatoria');
+      }
+      
+      if (formData.consultasRecibidas < 0) {
+        throw new Error('Las consultas recibidas no pueden ser negativas');
+      }
+      
+      if (formData.operacionesCerradas < 0) {
+        throw new Error('Las operaciones cerradas no pueden ser negativas');
+      }
+
+      // Preparar datos para envío - solo campos esenciales
+      const dataToSend: any = {
+        fecha: prepareDateForBackend(formData.fecha),
         consultasRecibidas: Number(formData.consultasRecibidas) || 0,
-        muestrasRealizadas: isAgentWithoutSamples(user?.email || '') ? 0 : (Number(formData.muestrasRealizadas) || 0), // 0 para agentes sin muestras
         operacionesCerradas: Number(formData.operacionesCerradas) || 0,
-        seguimiento: Boolean(formData.seguimiento),
-        usoTokko: formData.usoTokko?.trim() || null,
-        cantidadPropiedadesTokko: formData.cantidadPropiedadesTokko ? Number(formData.cantidadPropiedadesTokko) : null,
-        linksTokko: formData.linksTokko?.trim() || null,
-        dificultadTokko: formData.dificultadTokko,
-        detalleDificultadTokko: formData.detalleDificultadTokko?.trim() || null,
-        observaciones: formData.observaciones?.trim() || null,
-        numeroCaptaciones: formData.numeroCaptaciones ? Number(formData.numeroCaptaciones) : null
+        seguimiento: Boolean(formData.seguimiento)
       };
+
+      // Agregar muestras solo si el agente las realiza
+      if (!isAgentWithoutSamples(user?.email || '')) {
+        if (formData.muestrasRealizadas < 0) {
+          throw new Error('Las muestras realizadas no pueden ser negativas');
+        }
+        dataToSend.muestrasRealizadas = Number(formData.muestrasRealizadas) || 0;
+      }
+
+      // Agregar campos opcionales solo si tienen valor
+      if (formData.usoTokko?.trim()) {
+        dataToSend.usoTokko = formData.usoTokko.trim();
+      }
+
+      if (formData.cantidadPropiedadesTokko && Number(formData.cantidadPropiedadesTokko) > 0) {
+        dataToSend.cantidadPropiedadesTokko = Number(formData.cantidadPropiedadesTokko);
+      }
+
+      if (formData.linksTokko?.trim()) {
+        dataToSend.linksTokko = formData.linksTokko.trim();
+      }
+
+      if (formData.dificultadTokko !== null) {
+        dataToSend.dificultadTokko = formData.dificultadTokko;
+        
+        // Solo agregar detalle si hay dificultad
+        if (formData.dificultadTokko === true && formData.detalleDificultadTokko?.trim()) {
+          dataToSend.detalleDificultadTokko = formData.detalleDificultadTokko.trim();
+        }
+      }
+
+      if (formData.observaciones?.trim()) {
+        dataToSend.observaciones = formData.observaciones.trim();
+      }
+
+      if (formData.numeroCaptaciones && Number(formData.numeroCaptaciones) > 0) {
+        dataToSend.numeroCaptaciones = Number(formData.numeroCaptaciones);
+      }
 
       // Log para debugging
       console.log('Datos que se van a enviar:', dataToSend);
@@ -129,13 +206,22 @@ const NewRecord: React.FC = () => {
 
     } catch (err: any) {
       console.error('Error enviando registro:', err);
+      console.error('Respuesta del servidor:', err.response?.data);
+      console.error('Status del servidor:', err.response?.status);
       
       let errorMessage = 'Error al enviar el registro';
       
       if (err.response?.status === 400) {
-        errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctamente completados.';
-        if (err.response?.data?.message) {
-          errorMessage += ` Detalles: ${err.response.data.message}`;
+        // Mostrar detalles específicos del error de validación
+        const serverMessage = err.response?.data?.message || err.response?.data?.error;
+        const validationErrors = err.response?.data?.errors || err.response?.data?.details;
+        
+        if (validationErrors && Array.isArray(validationErrors)) {
+          errorMessage = 'Datos inválidos:\n' + validationErrors.map((error: any) => `• ${error.field || error.path}: ${error.message || error.msg}`).join('\n');
+        } else if (serverMessage) {
+          errorMessage = `Datos inválidos: ${serverMessage}`;
+        } else {
+          errorMessage = 'Datos inválidos. Verifica que todos los campos estén correctamente completados.';
         }
       } else if (err.response?.status === 401) {
         errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
@@ -219,8 +305,11 @@ const NewRecord: React.FC = () => {
 
               {error && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center">
-                    <span className="text-red-800 font-medium">{error}</span>
+                  <div className="flex items-start">
+                    <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-red-800 font-medium block">{error}</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -238,9 +327,14 @@ const NewRecord: React.FC = () => {
                     value={formData.fecha}
                     onChange={handleChange}
                     min={today}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors ${
+                      validationErrors.fecha ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
                     required
                   />
+                  {validationErrors.fecha && (
+                    <p className="mt-1 text-sm text-red-600">{validationErrors.fecha}</p>
+                  )}
                 </div>
 
                 {/* Métricas - Grid dinámico según tipo de agente */}
@@ -256,9 +350,14 @@ const NewRecord: React.FC = () => {
                       value={formData.consultasRecibidas}
                       onChange={handleChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors ${
+                        validationErrors.consultasRecibidas ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       required
                     />
+                    {validationErrors.consultasRecibidas && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.consultasRecibidas}</p>
+                    )}
                   </div>
 
                   {/* Campo de Muestras - Condicional para agentes sin muestras */}
@@ -274,9 +373,14 @@ const NewRecord: React.FC = () => {
                         value={formData.muestrasRealizadas}
                         onChange={handleChange}
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors ${
+                          validationErrors.muestrasRealizadas ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        }`}
                         required
                       />
+                      {validationErrors.muestrasRealizadas && (
+                        <p className="mt-1 text-sm text-red-600">{validationErrors.muestrasRealizadas}</p>
+                      )}
                     </div>
                   )}
 
@@ -312,9 +416,14 @@ const NewRecord: React.FC = () => {
                       value={formData.operacionesCerradas}
                       onChange={handleChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors ${
+                        validationErrors.operacionesCerradas ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       required
                     />
+                    {validationErrors.operacionesCerradas && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.operacionesCerradas}</p>
+                    )}
                   </div>
 
                   <div>
@@ -328,9 +437,14 @@ const NewRecord: React.FC = () => {
                       value={formData.numeroCaptaciones}
                       onChange={handleChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors ${
+                        validationErrors.numeroCaptaciones ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       placeholder="Ej: 3"
                     />
+                    {validationErrors.numeroCaptaciones && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.numeroCaptaciones}</p>
+                    )}
                   </div>
                 </div>
 
@@ -379,9 +493,14 @@ const NewRecord: React.FC = () => {
                       value={formData.cantidadPropiedadesTokko}
                       onChange={handleChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-[#240046] transition-colors ${
+                        validationErrors.cantidadPropiedadesTokko ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                       placeholder="Ej: 5"
                     />
+                    {validationErrors.cantidadPropiedadesTokko && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.cantidadPropiedadesTokko}</p>
+                    )}
                   </div>
 
                   {/* Links de Propiedades */}
