@@ -93,40 +93,37 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
   return (
     <>
       <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="w-full divide-y divide-gray-200">
           <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
             <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
                 Fecha
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-32">
                 Asesor
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                <Users className="h-4 w-4 inline mr-1" />
-                Consultas
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">
+                <Users className="h-3 w-3 inline mr-1" />
+                Cons.
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                <Eye className="h-4 w-4 inline mr-1" />
-                Muestras
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">
+                <Eye className="h-3 w-3 inline mr-1" />
+                Muest.
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                <CheckCircle className="h-4 w-4 inline mr-1" />
-                Operaciones
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">
+                <CheckCircle className="h-3 w-3 inline mr-1" />
+                Oper.
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Seguimiento
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
+                Seg.
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Tokko
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">
+                Prop.
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Propiedades
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
+                Dif.
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Dificultad
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-24">
                 Acciones
               </th>
             </tr>
@@ -134,26 +131,26 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
           <tbody className="bg-white divide-y divide-gray-200">
             {currentData.map((item, index) => (
               <tr key={item.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-150`}>
-                <td className="px-6 py-5 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{formatDate(item.fecha)}</div>
+                <td className="px-3 py-3 whitespace-nowrap">
+                  <div className="text-xs font-medium text-gray-900">{formatDate(item.fecha)}</div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">{item.user?.name || 'N/A'}</div>
-                    <div className="text-sm text-gray-500">{item.user?.email || 'N/A'}</div>
+                    <div className="text-xs font-semibold text-gray-900 truncate">{item.user?.name || 'N/A'}</div>
+                    <div className="text-xs text-gray-500 truncate">{item.user?.email || 'N/A'}</div>
                   </div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap text-center">
+                <td className="px-3 py-3 whitespace-nowrap text-center">
                   <div className="text-sm font-semibold text-gray-900">{item.consultasRecibidas}</div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap text-center">
+                <td className="px-3 py-3 whitespace-nowrap text-center">
                   <div className="text-sm font-semibold text-gray-900">{item.muestrasRealizadas}</div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap text-center">
+                <td className="px-3 py-3 whitespace-nowrap text-center">
                   <div className="text-sm font-semibold text-gray-900">{item.operacionesCerradas}</div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                <td className="px-3 py-3 whitespace-nowrap text-center">
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
                     item.seguimiento 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-gray-100 text-gray-800'
@@ -161,24 +158,12 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                     {item.seguimiento ? 'Sí' : 'No'}
                   </span>
                 </td>
-                <td className="px-6 py-5 text-sm text-gray-900 max-w-xs">
-                  {item.usoTokko ? (
-                    <div className="flex items-center">
-                      <MessageSquare className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-                      <span className="truncate font-medium" title={item.usoTokko}>
-                        {item.usoTokko}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400 font-medium">-</span>
-                  )}
-                </td>
-                <td className="px-6 py-5 whitespace-nowrap text-center">
+                <td className="px-3 py-3 whitespace-nowrap text-center">
                   <div className="text-sm font-semibold text-gray-900">{item.cantidadPropiedadesTokko || '-'}</div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap text-center">
                   {item.dificultadTokko !== null ? (
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
                       item.dificultadTokko 
                         ? 'bg-red-100 text-red-800' 
                         : 'bg-green-100 text-green-800'
@@ -189,8 +174,8 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                     <span className="text-gray-400 font-medium">-</span>
                   )}
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-3">
+                <td className="px-3 py-3 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-2">
                     <button
                       onClick={() => handleViewDetail(item.id)}
                       disabled={loadingDetail === item.id}
@@ -198,9 +183,9 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                       title="Ver detalles"
                     >
                       {loadingDetail === item.id ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
                       ) : (
-                        <FileText className="h-4 w-4" />
+                        <FileText className="h-3 w-3" />
                       )}
                     </button>
                     <button
@@ -208,7 +193,7 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                       className="text-primary-600 hover:text-primary-900 transition-colors duration-150"
                       title="Editar"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-3 w-3" />
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
@@ -217,9 +202,9 @@ const AdminTable: React.FC<AdminTableProps> = ({ data, onUpdate }) => {
                       title="Eliminar"
                     >
                       {deletingId === item.id ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600"></div>
                       ) : (
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       )}
                     </button>
                   </div>
