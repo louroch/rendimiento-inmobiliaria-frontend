@@ -100,11 +100,11 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Gráfico de líneas - Tendencias generales */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3">Tendencias Generales</h4>
-        <ResponsiveContainer width="100%" height={250}>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">Tendencias Generales</h4>
+        <ResponsiveContainer width="100%" height={200}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis 
@@ -156,8 +156,8 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
       {/* Gráfico de barras - Comparación por asesor */}
       {asesorChartData.length > 1 && (
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Desempeño por Asesor</h4>
-          <ResponsiveContainer width="100%" height={200}>
+          <h4 className="text-sm font-medium text-gray-700 mb-2">Desempeño por Asesor</h4>
+          <ResponsiveContainer width="100%" height={180}>
             <BarChart data={asesorChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis 
@@ -185,31 +185,38 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
       {/* Gráfico de pie - Distribución de operaciones */}
       {asesorChartData.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Distribución de Operaciones por Asesor</h4>
-          <ResponsiveContainer width="100%" height={200}>
+          <h4 className="text-sm font-medium text-gray-700 mb-2">Distribución de Operaciones por Asesor</h4>
+          <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
                 data={asesorChartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ asesor, operaciones }) => `${asesor}: ${operaciones}`}
-                outerRadius={80}
+                label={({ asesor, operaciones, percent }) => 
+                  `${asesor}: ${operaciones} (${(percent * 100).toFixed(1)}%)`
+                }
+                outerRadius={90}
+                innerRadius={30}
                 fill="#8884d8"
                 dataKey="operaciones"
+                paddingAngle={2}
               >
                 {asesorChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip 
+                formatter={(value: any, name: any) => [value, 'Operaciones']}
+                labelFormatter={(label: any) => `Asesor: ${label}`}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
       )}
 
       {/* Métricas de resumen */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-gray-200">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-3 border-t border-gray-200">
         <div className="text-center">
           <div className="text-lg font-bold" style={{ color: '#240046' }}>
             {data.reduce((sum, item) => sum + item.consultasRecibidas, 0)}

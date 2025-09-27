@@ -53,6 +53,10 @@ const AdminDashboard: React.FC = () => {
   const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'error' | 'unknown'>('unknown');
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [filters, setFilters] = useState({
     userId: '',
     startDate: '',
@@ -79,19 +83,37 @@ const AdminDashboard: React.FC = () => {
   });
 
   const fetchData = useCallback(async () => {
+    // Evitar llamadas concurrentes
+    if (isFetching) {
+      return;
+    }
+    
     try {
+      setIsFetching(true);
       setLoading(true);
+      setApiStatus('checking');
+      
+      // Preparar parámetros para la consulta
+      const queryParams = {
+        userId: filters.userId || undefined,
+        startDate: filters.startDate || undefined,
+        endDate: filters.endDate || undefined,
+        limit: 100,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      };
       
       // Obtener datos de desempeño
       const performanceResponse = await api.get('/performance', {
-        params: {
-          userId: filters.userId || undefined,
-          startDate: filters.startDate || undefined,
-          endDate: filters.endDate || undefined,
-          limit: 100
-        }
+        params: queryParams
       });
-      setPerformanceData(performanceResponse.data.performance);
+      
+      // Ordenar los datos en el frontend por createdAt para asegurar el orden correcto
+      const sortedData = performanceResponse.data.performance.sort((a: any, b: any) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      
+      setPerformanceData(sortedData);
 
       // Obtener estadísticas generales
       const statsResponse = await api.get('/performance/stats/overview', {
@@ -101,21 +123,37 @@ const AdminDashboard: React.FC = () => {
           endDate: filters.endDate || undefined
         }
       });
+      
       setStats(statsResponse.data);
 
-      // Obtener usuarios (siempre para mantener el select disponible)
+      // Obtener usuarios
       const usersResponse = await api.get('/users');
       setUsers(usersResponse.data.users);
-    } catch (error) {
+      
+      setApiStatus('connected');
+      setLastUpdate(new Date());
+    } catch (error: any) {
+      setApiStatus('error');
       console.error('Error obteniendo datos:', error);
     } finally {
       setLoading(false);
+      setIsFetching(false);
     }
   }, [filters.userId, filters.startDate, filters.endDate]);
 
+  // Cargar datos al montar el componente y cuando cambien los filtros
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Sincronización automática
+  useEffect(() => {
+    if (!autoSyncEnabled) return;
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000); // 30 segundos
+    return () => clearInterval(interval);
+  }, [fetchData, autoSyncEnabled]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({
@@ -135,95 +173,52 @@ const AdminDashboard: React.FC = () => {
   const exportData = () => {
     const csvContent = [
       ['Fecha', 'Asesor', 'Consultas', 'Muestras', 'Operaciones', 'Captaciones', 'Seguimiento', 'Tokko'],
-      ...performanceData.map(item => [
-        formatDateForExport(item.fecha),
-        item.user.name,
-        item.consultasRecibidas,
-        item.muestrasRealizadas,
-        item.operacionesCerradas,
-        item.numeroCaptaciones || 0,
-        item.seguimiento ? 'Sí' : 'No',
-        item.usoTokko || ''
+      ...performanceData.map(record => [
+        formatDateForExport(record.fecha),
+        record.user.name,
+        record.consultasRecibidas,
+        record.muestrasRealizadas,
+        record.operacionesCerradas,
+        record.numeroCaptaciones || 0,
+        record.seguimiento ? 'Sí' : 'No',
+        record.usoTokko || 'No'
       ])
     ].map(row => row.join(',')).join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `rendimiento-inmobiliario-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `desempeno_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  if (loading) {
-    return (
-      <AdminLayout title="Panel de Administración" subtitle="Cargando datos...">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#240046' }}></div>
-        </div>
-      </AdminLayout>
-    );
-  }
+  const hasActiveFilters = filters.userId || filters.startDate || filters.endDate;
 
   return (
-    <AdminLayout 
-      title="Panel de Administración" 
-      subtitle="Monitoreo y análisis del desempeño del equipo inmobiliario"
-    >
-      <div className="w-full space-y-3 sm:space-y-4" style={{ minWidth: 0 }}>
-        {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:justify-end" style={{ 
-          flexDirection: 'column',
-          display: 'flex'
-        }}>
-          <Button
-            onClick={exportData}
-            variant="secondary"
-            icon={Download}
-            size="sm"
-            className="w-full sm:w-auto"
-            style={{ width: '100%', marginBottom: '0.5rem' }}
-          >
-            Exportar
-          </Button>
-          <Button
-            onClick={fetchData}
-            icon={RefreshCw}
-            size="sm"
-            className="w-full sm:w-auto"
-            style={{ 
-              backgroundColor: '#240046', 
-              borderColor: '#240046', 
-              color: 'white',
-              width: '100%'
-            }}
-          >
-            Actualizar
-          </Button>
-        </div>
-
+    <AdminLayout title="Dashboard de Administración">
+      <div className="space-y-4">
         {/* Filtros */}
-        <Card className="p-3 sm:p-4">
-          <Flex alignItems="center" justifyContent="between" className="mb-3">
-            <Flex alignItems="center" className="space-x-2">
-              <Filter className="h-4 w-4 text-gray-600" />
-              <Text className="text-sm sm:text-base font-medium text-gray-900">Filtros</Text>
-            </Flex>
-          </Flex>
+        <Card className="p-4 bg-white">
+          <div className="flex items-center space-x-2 mb-3">
+            <Filter className="h-5 w-5 text-gray-600" />
+            <Text className="text-lg font-medium">Filtros</Text>
+          </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Asesor</Text>
+              <Text className="text-sm font-medium mb-2">Asesor</Text>
               <Select
                 value={filters.userId}
                 onValueChange={(value) => handleFilterChange('userId', value)}
                 placeholder="Todos los asesores"
-                className="bg-white"
               >
-                <SelectItem value="" className="bg-white text-gray-900 hover:bg-gray-100">Todos los asesores</SelectItem>
+                <SelectItem value="">Todos los asesores</SelectItem>
                 {users.map(user => (
-                  <SelectItem key={user.id} value={user.id} className="bg-white text-gray-900 hover:bg-gray-100">
+                  <SelectItem key={user.id} value={user.id}>
                     {user.name}
                   </SelectItem>
                 ))}
@@ -231,261 +226,212 @@ const AdminDashboard: React.FC = () => {
             </div>
             
             <div>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Fecha Inicio</Text>
+              <Text className="text-sm font-medium mb-2">Fecha Inicio</Text>
               <input
                 type="date"
                 value={filters.startDate}
                 onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
             <div>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Fecha Fin</Text>
+              <Text className="text-sm font-medium mb-2">Fecha Fin</Text>
               <input
                 type="date"
                 value={filters.endDate}
                 onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#240046] focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
-            <div className="flex items-end sm:col-span-2 lg:col-span-1">
+            <div className="flex items-end space-x-2">
               <Button
                 onClick={clearFilters}
                 variant="secondary"
                 size="sm"
-                className="w-full"
+                className="flex-1"
               >
-                Limpiar Filtros
+                Limpiar
+              </Button>
+              <Button
+                onClick={exportData}
+                variant="secondary"
+                size="sm"
+                className="flex-1"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Exportar
+              </Button>
+            </div>
+          </div>
+
+          {/* Indicadores de estado */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  apiStatus === 'connected' ? 'bg-green-500' : 
+                  apiStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+                }`}></div>
+                <Text className="text-xs text-gray-500">
+                  API: {apiStatus === 'connected' ? 'Conectado' : 
+                        apiStatus === 'error' ? 'Error' : 'Verificando...'}
+                </Text>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  autoSyncEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-400'
+                }`}></div>
+                <Text className="text-xs text-gray-500">
+                  Auto-sync: {autoSyncEnabled ? 'Activo' : 'Inactivo'}
+                </Text>
+              </div>
+              
+              {lastUpdate && (
+                <Text className="text-xs text-gray-500">
+                  Última actualización: {lastUpdate.toLocaleTimeString()}
+                </Text>
+              )}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+                variant="secondary"
+                size="sm"
+                style={{ 
+                  backgroundColor: autoSyncEnabled ? '#10b981' : '#6b7280',
+                  color: 'white'
+                }}
+              >
+                {autoSyncEnabled ? 'OFF' : 'ON'}
+              </Button>
+              <Button
+                onClick={fetchData}
+                variant="secondary"
+                size="sm"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Actualizar
               </Button>
             </div>
           </div>
         </Card>
 
         {/* Indicador de filtro activo */}
-        {filters.userId && (
+        {hasActiveFilters && (
           <Card className="p-3 bg-blue-50 border-blue-200">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <Text className="text-blue-800 font-medium text-sm">
-                Mostrando estadísticas de: {users.find(u => u.id === filters.userId)?.name || 'Agente seleccionado'}
-              </Text>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Filter className="h-4 w-4 text-blue-600" />
+                <Text className="text-sm text-blue-800">
+                  Filtros activos: {filters.userId && 'Asesor'} {filters.startDate && 'Fecha inicio'} {filters.endDate && 'Fecha fin'}
+                </Text>
+              </div>
               <Button
-                onClick={() => handleFilterChange('userId', '')}
+                onClick={clearFilters}
                 variant="secondary"
-                size="xs"
-                className="ml-auto"
+                size="sm"
+                style={{ backgroundColor: '#3b82f6', color: 'white' }}
               >
-                Ver todos
+                Limpiar filtros
               </Button>
             </div>
           </Card>
         )}
 
-        {/* Estadísticas Generales */}
-        <div className="grid gap-3 sm:gap-4 w-full" style={{ 
-          gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
-          display: 'grid'
-        }}>
-          {/* Total Consultas */}
-          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
-            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
-              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
-                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
-                  {filters.userId ? 'Consultas del Agente' : 'Total Consultas'}
-                </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.consultasRecibidas}</Metric>
-                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.consultasRecibidas}</Text>
-              </div>
-              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" style={{ height: '1rem', width: '1rem' }} />
-              </div>
-            </Flex>
-          </Card>
+        {/* Estadísticas generales */}
+        <Card className="p-4 bg-white">
+          <div className="flex items-center space-x-2 mb-4">
+            <BarChart3 className="h-5 w-5 text-indigo-600" />
+            <Text className="text-lg font-medium">Estadísticas Generales</Text>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <Text className="text-xl font-bold text-blue-600">{stats.totalRecords || 0}</Text>
+              <Text className="text-sm text-gray-600">Total Registros</Text>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <Text className="text-xl font-bold text-green-600">{stats.totals.consultasRecibidas || 0}</Text>
+              <Text className="text-sm text-gray-600">Consultas</Text>
+            </div>
+            <div className="text-center p-3 bg-yellow-50 rounded-lg">
+              <Text className="text-xl font-bold text-yellow-600">{stats.totals.muestrasRealizadas || 0}</Text>
+              <Text className="text-sm text-gray-600">Muestras</Text>
+            </div>
+            <div className="text-center p-3 bg-purple-50 rounded-lg">
+              <Text className="text-xl font-bold text-purple-600">{stats.totals.operacionesCerradas || 0}</Text>
+              <Text className="text-sm text-gray-600">Operaciones</Text>
+            </div>
+            <div className="text-center p-3 bg-indigo-50 rounded-lg">
+              <Text className="text-xl font-bold text-indigo-600">{stats.totals.numeroCaptaciones || 0}</Text>
+              <Text className="text-sm text-gray-600">Captaciones</Text>
+            </div>
+          </div>
+        </Card>
 
-          {/* Total Muestras */}
-          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
-            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
-              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
-                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
-                  {filters.userId ? 'Muestras del Agente' : 'Total Muestras'}
-                </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.muestrasRealizadas}</Metric>
-                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.muestrasRealizadas}</Text>
-              </div>
-              <div className="p-2 bg-green-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
-                <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" style={{ height: '1rem', width: '1rem' }} />
-              </div>
-            </Flex>
-          </Card>
-
-          {/* Total Operaciones */}
-          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
-            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
-              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
-                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
-                  {filters.userId ? 'Operaciones del Agente' : 'Total Operaciones'}
-                </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.operacionesCerradas}</Metric>
-                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.operacionesCerradas}</Text>
-              </div>
-              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
-                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" style={{ height: '1rem', width: '1rem' }} />
-              </div>
-            </Flex>
-          </Card>
-
-          {/* Total Captaciones */}
-          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
-            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
-              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
-                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
-                  {filters.userId ? 'Captaciones del Agente' : 'Total Captaciones'}
-                </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>{stats.totals.numeroCaptaciones}</Metric>
-                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>Promedio: {stats.averages.numeroCaptaciones}</Text>
-              </div>
-              <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
-                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" style={{ height: '1rem', width: '1rem' }} />
-              </div>
-            </Flex>
-          </Card>
-
-          {/* Conversión General */}
-          <Card className="p-3 sm:p-4" style={{ width: '100%', marginBottom: '0.75rem' }}>
-            <Flex alignItems="center" justifyContent="between" style={{ width: '100%' }}>
-              <div className="min-w-0 flex-1" style={{ minWidth: 0, flex: 1 }}>
-                <Text className="text-xs font-medium text-gray-600 truncate" style={{ fontSize: '0.75rem' }}>
-                  {filters.userId ? 'Conversión del Agente' : 'Conversión General'}
-                </Text>
-                <Metric className="text-lg sm:text-xl font-bold text-gray-900" style={{ fontSize: '1.125rem' }}>
-                  {stats.totals.consultasRecibidas > 0 
-                    ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
-                    : 0}%
-                </Metric>
-                <Text className="text-xs text-gray-500" style={{ fontSize: '0.75rem' }}>{stats.totalRecords} registros</Text>
-              </div>
-              <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0 ml-2" style={{ padding: '0.5rem', marginLeft: '0.5rem' }}>
-                <Percent className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" style={{ height: '1rem', width: '1rem' }} />
-              </div>
-            </Flex>
-          </Card>
-        </div>
-
-        {/* Tasas de Conversión Detalladas */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" className="space-x-2 mb-3">
-              <TrendingUp className="h-4 w-4 text-gray-600" />
-              <Text className="text-sm sm:text-base font-medium text-gray-900">Tasas de Conversión</Text>
-            </Flex>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <Flex alignItems="center" justifyContent="between">
-                  <div className="min-w-0 flex-1">
-                    <Text className="text-xs font-medium text-blue-900 truncate">Consultas → Muestras</Text>
-                    <Metric className="text-base sm:text-lg font-bold text-blue-600">
-                      {stats.conversionRates.consultasToMuestras}%
-                    </Metric>
-                  </div>
-                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 flex-shrink-0 ml-2" />
-                </Flex>
-              </div>
-              <div className="bg-green-50 p-3 rounded-lg">
-                <Flex alignItems="center" justifyContent="between">
-                  <div className="min-w-0 flex-1">
-                    <Text className="text-xs font-medium text-green-900 truncate">Muestras → Operaciones</Text>
-                    <Metric className="text-base sm:text-lg font-bold text-green-600">
-                      {stats.conversionRates.muestrasToOperaciones}%
-                    </Metric>
-                  </div>
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0 ml-2" />
-                </Flex>
+        {/* Tasas de conversión */}
+        <Card className="p-4 bg-white">
+          <div className="flex items-center space-x-2 mb-4">
+            <Percent className="h-5 w-5 text-indigo-600" />
+            <Text className="text-lg font-medium">Tasas de Conversión</Text>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-3 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Text className="text-sm text-gray-600">Consultas → Muestras</Text>
+                  <Text className="text-2xl font-bold text-green-600">
+                    {typeof stats.conversionRates.consultasToMuestras === 'number' 
+                      ? stats.conversionRates.consultasToMuestras.toFixed(1) 
+                      : '0.0'}%
+                  </Text>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-500" />
               </div>
             </div>
-          </Card>
-
-          <Card className="p-3 sm:p-4">
-            <Text className="text-sm sm:text-base font-medium text-gray-900 mb-3">Resumen de Eficiencia</Text>
-            <div className="space-y-2">
-              <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600 truncate">Consultas por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.consultasRecibidas}</span>
-              </Flex>
-              <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600 truncate">Muestras por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.muestrasRealizadas}</span>
-              </Flex>
-              <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600 truncate">Operaciones por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.operacionesCerradas}</span>
-              </Flex>
-              <div className="border-t pt-2">
-                <Flex justifyContent="between" alignItems="center">
-                  <Text className="text-xs font-medium text-gray-900 truncate">Eficiencia general:</Text>
-                  <span className="text-xs font-bold text-green-600 flex-shrink-0 ml-2">
-                    {stats.totals.consultasRecibidas > 0 
-                      ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
-                      : 0}%
-                  </span>
-                </Flex>
+            
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Text className="text-sm text-gray-600">Muestras → Operaciones</Text>
+                  <Text className="text-2xl font-bold text-blue-600">
+                    {typeof stats.conversionRates.muestrasToOperaciones === 'number' 
+                      ? stats.conversionRates.muestrasToOperaciones.toFixed(1) 
+                      : '0.0'}%
+                  </Text>
+                </div>
+                <Target className="h-8 w-8 text-blue-500" />
               </div>
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
 
         {/* Gráficos */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" className="space-x-2 mb-3">
-              <BarChart3 className="h-4 w-4 text-gray-600" />
-              <Text className="text-sm sm:text-base font-medium text-gray-900">Tendencias de Desempeño</Text>
-            </Flex>
+        <Card className="p-4 bg-white">
+          <div className="flex items-center space-x-2 mb-4">
+            <BarChart3 className="h-5 w-5 text-indigo-600" />
+            <Text className="text-lg font-medium">Análisis de Desempeño</Text>
+          </div>
+          <div className="h-48">
             <AdminChart data={performanceData} />
-          </Card>
+          </div>
+        </Card>
 
-          <Card className="p-3 sm:p-4">
-            <Flex alignItems="center" className="space-x-2 mb-3">
-              <TrendingUp className="h-4 w-4 text-gray-600" />
-              <Text className="text-sm sm:text-base font-medium text-gray-900">Resumen de Eficiencia</Text>
-            </Flex>
-            <div className="space-y-2">
-              <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600 truncate">Consultas por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.consultasRecibidas}</span>
-              </Flex>
-              <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600 truncate">Muestras por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.muestrasRealizadas}</span>
-              </Flex>
-              <Flex justifyContent="between" alignItems="center">
-                <Text className="text-xs text-gray-600 truncate">Operaciones por día promedio:</Text>
-                <span className="text-xs font-medium text-gray-900 flex-shrink-0 ml-2">{stats.averages.operacionesCerradas}</span>
-              </Flex>
-              <div className="border-t pt-2">
-                <Flex justifyContent="between" alignItems="center">
-                  <Text className="text-xs font-medium text-gray-900 truncate">Eficiencia general:</Text>
-                  <span className="text-xs font-bold text-green-600 flex-shrink-0 ml-2">
-                    {stats.totals.consultasRecibidas > 0 
-                      ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
-                      : 0}%
-                  </span>
-                </Flex>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Tabla de Desempeño */}
-        <Card className="p-3 sm:p-4">
-          <Flex alignItems="center" className="space-x-2 mb-3">
-            <Calendar className="h-4 w-4 text-gray-600" />
-            <Text className="text-sm sm:text-base font-medium text-gray-900">Registros de Desempeño</Text>
-          </Flex>
-          <div className="overflow-x-auto">
+        {/* Tabla de registros */}
+        <Card className="p-4 bg-white">
+          <div className="flex items-center space-x-2 mb-4">
+            <Users className="h-5 w-5 text-indigo-600" />
+            <Text className="text-lg font-medium">Registros de Desempeño</Text>
+          </div>
+          <div className="w-full overflow-hidden">
             <AdminTable 
-              data={performanceData}
+              data={performanceData} 
               onUpdate={fetchData}
             />
           </div>

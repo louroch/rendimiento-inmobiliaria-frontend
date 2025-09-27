@@ -5,7 +5,8 @@ import {
   Award, 
   TrendingUp, 
   Users, 
-  Filter
+  Filter,
+  BarChart3
 } from 'lucide-react';
 import { Card, Text, Flex, Button, Badge } from '@tremor/react';
 import { api } from '../services/api';
@@ -23,13 +24,46 @@ interface AgentRanking {
   eficiencia: number;
 }
 
+interface AgentWithConversion extends AgentRanking {
+  conversionRates: {
+    consultaToMuestra: number;
+    muestraToOperacion: number;
+    consultaToOperacion: number;
+  };
+}
+
 const AdminUsers: React.FC = () => {
-  const [ranking, setRanking] = useState<AgentRanking[]>([]);
+  const [ranking, setRanking] = useState<AgentWithConversion[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: ''
   });
+
+  // Función para calcular tasas de conversión
+  const calculateConversionRates = (agent: AgentRanking) => {
+    const consultaToMuestra = agent.totalConsultas > 0 ? (agent.totalMuestras / agent.totalConsultas) * 100 : 0;
+    const muestraToOperacion = agent.totalMuestras > 0 ? (agent.totalOperaciones / agent.totalMuestras) * 100 : 0;
+    const consultaToOperacion = agent.totalConsultas > 0 ? (agent.totalOperaciones / agent.totalConsultas) * 100 : 0;
+    
+    return {
+      consultaToMuestra: Math.round(consultaToMuestra * 10) / 10,
+      muestraToOperacion: Math.round(muestraToOperacion * 10) / 10,
+      consultaToOperacion: Math.round(consultaToOperacion * 10) / 10
+    };
+  };
+
+  // Función para procesar y enriquecer los datos del ranking
+  const processRankingData = (data: AgentRanking[]): AgentWithConversion[] => {
+    return data.map(agent => {
+      const conversionRates = calculateConversionRates(agent);
+      
+      return {
+        ...agent,
+        conversionRates
+      };
+    }).sort((a, b) => b.totalOperaciones - a.totalOperaciones); // Ordenar por operaciones cerradas
+  };
 
   const fetchRanking = useCallback(async () => {
     try {
@@ -40,7 +74,8 @@ const AdminUsers: React.FC = () => {
       if (filters.endDate) params.append('endDate', filters.endDate);
 
       const response = await api.get(`/users/ranking?${params.toString()}`);
-      setRanking(response.data.ranking);
+      const processedData = processRankingData(response.data.ranking);
+      setRanking(processedData);
     } catch (error) {
       console.error('Error obteniendo ranking:', error);
     } finally {
@@ -54,8 +89,8 @@ const AdminUsers: React.FC = () => {
 
   const getRankIcon = (position: number) => {
     switch (position) {
-      case 1: return <Trophy className="h-6 w-6 text-yellow-500" />;
-      case 2: return <Medal className="h-6 w-6 text-gray-400" />;
+      case 1: return <Trophy className="h-8 w-8 text-yellow-500" />;
+      case 2: return <Medal className="h-7 w-7 text-gray-400" />;
       case 3: return <Award className="h-6 w-6 text-amber-600" />;
       default: return <span className="text-lg font-bold text-gray-600">#{position}</span>;
     }
@@ -63,9 +98,9 @@ const AdminUsers: React.FC = () => {
 
   const getRankColor = (position: number) => {
     switch (position) {
-      case 1: return 'bg-yellow-50 border-yellow-200';
-      case 2: return 'bg-gray-50 border-gray-200';
-      case 3: return 'bg-amber-50 border-amber-200';
+      case 1: return 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-300 shadow-lg';
+      case 2: return 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300 shadow-md';
+      case 3: return 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-300 shadow-md';
       default: return 'bg-white border-gray-200';
     }
   };
@@ -77,7 +112,7 @@ const AdminUsers: React.FC = () => {
   return (
     <AdminLayout 
       title="Ranking de Agentes" 
-      subtitle="Clasificación por eficiencia y desempeño"
+      subtitle="Clasificación por operaciones cerradas y tasas de conversión"
     >
       <div className="space-y-6">
         {/* Filtros */}
@@ -148,7 +183,8 @@ const AdminUsers: React.FC = () => {
                   key={agent.userId}
                   className={`p-6 rounded-lg border-2 transition-all hover:shadow-md ${getRankColor(index + 1)}`}
                 >
-                  <div className="flex items-center justify-between">
+                  {/* Header con posición y nombre */}
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center justify-center w-12 h-12">
                         {getRankIcon(index + 1)}
@@ -160,18 +196,12 @@ const AdminUsers: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                        <span className="text-2xl font-bold text-green-600">
-                          {agent.eficiencia}%
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600">Eficiencia</p>
-                    </div>
+                    {/* Operaciones cerradas como métrica principal */}
+                    
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {/* Métricas principales */}
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">{agent.totalConsultas}</p>
                       <p className="text-sm text-gray-600">Consultas</p>
@@ -191,6 +221,28 @@ const AdminUsers: React.FC = () => {
                     <div className="text-center">
                       <p className="text-2xl font-bold text-gray-600">{agent.totalRegistros}</p>
                       <p className="text-sm text-gray-600">Registros</p>
+                    </div>
+                  </div>
+
+                  {/* Tasas de conversión */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      <h4 className="text-sm font-semibold text-gray-900">Tasas de Conversión</h4>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-indigo-600">{agent.conversionRates.consultaToMuestra}%</p>
+                        <p className="text-xs text-gray-600">Consulta → Muestra</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-indigo-600">{agent.conversionRates.muestraToOperacion}%</p>
+                        <p className="text-xs text-gray-600">Muestra → Operación</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-indigo-600">{agent.conversionRates.consultaToOperacion}%</p>
+                        <p className="text-xs text-gray-600">Consulta → Operación</p>
+                      </div>
                     </div>
                   </div>
                 </div>
