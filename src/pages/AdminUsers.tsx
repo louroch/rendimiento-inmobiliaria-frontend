@@ -18,6 +18,7 @@ interface AgentRanking {
   totalConsultas: number;
   totalMuestras: number;
   totalOperaciones: number;
+  totalCaptaciones: number;
   totalRegistros: number;
   eficiencia: number;
 }
@@ -170,7 +171,7 @@ const AdminUsers: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">{agent.totalConsultas}</p>
                       <p className="text-sm text-gray-600">Consultas</p>
@@ -182,6 +183,10 @@ const AdminUsers: React.FC = () => {
                     <div className="text-center">
                       <p className="text-2xl font-bold text-purple-600">{agent.totalOperaciones}</p>
                       <p className="text-sm text-gray-600">Operaciones</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-amber-600">{agent.totalCaptaciones}</p>
+                      <p className="text-sm text-gray-600">Captaciones</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-gray-600">{agent.totalRegistros}</p>
