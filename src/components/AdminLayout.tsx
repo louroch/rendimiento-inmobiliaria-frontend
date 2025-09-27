@@ -13,7 +13,10 @@ import {
   UserPlus,
   Building2,
   Calendar,
-  Brain
+  Brain,
+  BarChart3,
+  User,
+  Download
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -46,6 +49,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     { name: 'Dashboard Tokko', href: '/admin/tokko', icon: Building2, current: location.pathname === '/admin/tokko' },
     { name: 'Desempeño Semanal', href: '/admin/weekly', icon: Calendar, current: location.pathname === '/admin/weekly' },
     { name: 'Recomendaciones IA', href: '/admin/ai-recommendations', icon: Brain, current: location.pathname === '/admin/ai-recommendations' },
+    { name: 'Reportes', href: '/admin/reports', icon: BarChart3, current: location.pathname === '/admin/reports' },
+    { name: 'Análisis de Agente', href: '/admin/agent-performance', icon: User, current: location.pathname === '/admin/agent-performance' },
+    { name: 'Tendencias', href: '/admin/trends', icon: TrendingUp, current: location.pathname === '/admin/trends' },
+    { name: 'Exportar', href: '/admin/export', icon: Download, current: location.pathname === '/admin/export' },
     { name: 'Registros', href: '/admin/records', icon: Database, current: location.pathname === '/admin/records' },
     { name: 'Nuevo Agente', href: '/admin/new-agent', icon: UserPlus, current: location.pathname === '/admin/new-agent' },
     { name: 'Usuarios', href: '/admin/users', icon: Users, current: location.pathname === '/admin/users' },
@@ -54,14 +61,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 h-screen bg-[#240046] transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 h-screen transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex flex-col justify-between h-screen bg-[#240046]">
+        <div className="flex flex-col justify-between h-full w-full bg-[#240046]">
           {/* Top Section - Logo and Navigation */}
-          <div className="flex-1">
+          <div className="flex-1 bg-[#240046]">
             {/* Header */}
-            <div className="flex items-center justify-end h-16 px-6 border-b border-[#5a189a]">
+            <div className="flex items-center justify-end h-16 px-6 border-b border-[#5a189a] bg-[#240046]">
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="lg:hidden text-white hover:text-gray-300 p-1 rounded-md hover:bg-[#5a189a]"
@@ -71,7 +78,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             </div>
 
             {/* Navigation */}
-            <nav className="px-4 py-6">
+            <nav className="px-4 py-6 bg-[#240046]">
               <div className="space-y-2">
                 {navigation.map((item) => (
                   <button
@@ -85,6 +92,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                         ? 'bg-[#5a189a] text-white shadow-lg'
                         : 'text-gray-300 hover:bg-[#5a189a] hover:text-white hover:shadow-md'
                     }`}
+                    style={{ backgroundColor: item.current ? '#5a189a' : 'transparent' }}
                   >
                     <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
                     <span className="text-left">{item.name}</span>
@@ -99,12 +107,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             <div className="flex items-center space-x-3 mb-3">
               <div className="w-10 h-10 bg-[#9d4edd] rounded-full flex items-center justify-center shadow-lg">
                 <span className="text-white text-sm font-bold">
-                  {user?.name?.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0).toUpperCase() || 'U'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-white truncate">
-                  {user?.name}
+                  {user?.name || 'Usuario'}
                 </p>
                 <p className="text-xs text-gray-300 truncate">
                   {user?.role === 'admin' ? 'Administrador' : 'Asesor'}
@@ -125,7 +133,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       {/* Main content */}
       <div className="flex-1 flex flex-col h-screen">
         {/* Top header */}
-        <div className="bg-white border-b border-gray-200 shadow-sm pt-0 mt-0">
+        <div className="bg-white border-b border-gray-200 shadow-sm">
           <div className="flex items-center justify-between h-14 px-3 sm:px-4 lg:px-6">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
               <button
@@ -163,7 +171,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-3 sm:p-4 lg:p-6 pt-0 mt-0 overflow-auto bg-gray-50 w-full">
+        <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-auto">
           <div className="w-full max-w-none">
             {children}
           </div>

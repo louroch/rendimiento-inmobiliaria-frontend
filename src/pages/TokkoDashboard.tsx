@@ -84,9 +84,9 @@ const TokkoDashboardPage: React.FC = () => {
       showBackButton={true}
       backPath="/admin"
     >
-      <div className="h-full flex flex-col">
+      <div className="space-y-6">
         {/* Filtros */}
-        <Card className="p-4 mb-4">
+        <Card className="p-4">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
             <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -153,9 +153,7 @@ const TokkoDashboardPage: React.FC = () => {
         </Card>
 
         {/* Dashboard de Tokko */}
-        <div className="flex-1">
-          <TokkoDashboard filters={filters} />
-        </div>
+        <TokkoDashboard filters={filters} />
       </div>
     </AdminLayout>
   );

@@ -3,7 +3,6 @@ import {
   Trophy, 
   Medal, 
   Award, 
-  TrendingUp, 
   Users, 
   Filter,
   BarChart3
@@ -53,18 +52,6 @@ const AdminUsers: React.FC = () => {
     };
   };
 
-  // Función para procesar y enriquecer los datos del ranking
-  const processRankingData = (data: AgentRanking[]): AgentWithConversion[] => {
-    return data.map(agent => {
-      const conversionRates = calculateConversionRates(agent);
-      
-      return {
-        ...agent,
-        conversionRates
-      };
-    }).sort((a, b) => b.totalOperaciones - a.totalOperaciones); // Ordenar por operaciones cerradas
-  };
-
   const fetchRanking = useCallback(async () => {
     try {
       setLoading(true);
@@ -74,6 +61,19 @@ const AdminUsers: React.FC = () => {
       if (filters.endDate) params.append('endDate', filters.endDate);
 
       const response = await api.get(`/users/ranking?${params.toString()}`);
+      
+      // Función para procesar y enriquecer los datos del ranking
+      const processRankingData = (data: AgentRanking[]): AgentWithConversion[] => {
+        return data.map(agent => {
+          const conversionRates = calculateConversionRates(agent);
+          
+          return {
+            ...agent,
+            conversionRates
+          };
+        }).sort((a, b) => b.totalOperaciones - a.totalOperaciones); // Ordenar por operaciones cerradas
+      };
+      
       const processedData = processRankingData(response.data.ranking);
       setRanking(processedData);
     } catch (error) {

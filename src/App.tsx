@@ -12,6 +12,10 @@ import AdminUsers from './pages/AdminUsers';
 import TokkoDashboard from './pages/TokkoDashboard';
 import WeeklyDashboard from './pages/WeeklyDashboard';
 import AIRecommendations from './pages/AIRecommendations';
+import ReportsDashboard from './pages/ReportsDashboard';
+import AgentPerformance from './pages/AgentPerformance';
+import TrendsReports from './pages/TrendsReports';
+import ExportReports from './pages/ExportReports';
 import Layout from './components/Layout';
 
 // Componente para redirección inteligente basada en el rol
@@ -90,6 +94,26 @@ function App() {
             <Route path="/admin/ai-recommendations" element={
               <ProtectedRoute requireAdmin>
                 <AIRecommendations />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute requireAdmin>
+                <ReportsDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/agent-performance" element={
+              <ProtectedRoute requireAdmin>
+                <AgentPerformance />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/trends" element={
+              <ProtectedRoute requireAdmin>
+                <TrendsReports />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/export" element={
+              <ProtectedRoute requireAdmin>
+                <ExportReports />
               </ProtectedRoute>
             } />
             

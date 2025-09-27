@@ -200,7 +200,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <AdminLayout title="Dashboard de Administración">
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Filtros */}
         <Card className="p-4 bg-white">
           <div className="flex items-center space-x-2 mb-3">
@@ -413,12 +413,12 @@ const AdminDashboard: React.FC = () => {
         </Card>
 
         {/* Gráficos */}
-        <Card className="p-4 bg-white">
-          <div className="flex items-center space-x-2 mb-4">
+        <Card className="p-6 bg-white">
+          <div className="flex items-center space-x-2 mb-6">
             <BarChart3 className="h-5 w-5 text-indigo-600" />
             <Text className="text-lg font-medium">Análisis de Desempeño</Text>
           </div>
-          <div className="h-48">
+          <div className="min-h-[600px]">
             <AdminChart data={performanceData} />
           </div>
         </Card>

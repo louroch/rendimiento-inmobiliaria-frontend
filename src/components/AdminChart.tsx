@@ -186,32 +186,49 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
       {asesorChartData.length > 0 && (
         <div>
           <h4 className="text-sm font-medium text-gray-700 mb-2">Distribución de Operaciones por Asesor</h4>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie
-                data={asesorChartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ asesor, operaciones, percent }) => 
-                  `${asesor}: ${operaciones} (${(percent * 100).toFixed(1)}%)`
-                }
-                outerRadius={90}
-                innerRadius={30}
-                fill="#8884d8"
-                dataKey="operaciones"
-                paddingAngle={2}
-              >
-                {asesorChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value: any, name: any) => [value, 'Operaciones']}
-                labelFormatter={(label: any) => `Asesor: ${label}`}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="flex justify-center">
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={asesorChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ asesor, operaciones, percent }) => 
+                    percent > 0.05 ? `${asesor}: ${operaciones}` : ''
+                  }
+                  outerRadius={80}
+                  innerRadius={20}
+                  fill="#8884d8"
+                  dataKey="operaciones"
+                  paddingAngle={1}
+                >
+                  {asesorChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: any, name: any) => [value, 'Operaciones']}
+                  labelFormatter={(label: any) => `Asesor: ${label}`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          
+          {/* Leyenda personalizada */}
+          <div className="flex flex-wrap justify-center gap-2 mt-4">
+            {asesorChartData.map((entry, index) => (
+              <div key={`legend-${index}`} className="flex items-center space-x-2">
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                ></div>
+                <span className="text-xs text-gray-600">
+                  {entry.asesor}: {entry.operaciones} ({((entry.operaciones / asesorChartData.reduce((sum, item) => sum + item.operaciones, 0)) * 100).toFixed(1)}%)
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
