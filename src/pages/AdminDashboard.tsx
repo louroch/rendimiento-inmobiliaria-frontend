@@ -62,7 +62,7 @@ const AdminDashboard: React.FC = memo(() => {
   const [isFetching, setIsFetching] = useState(false);
   
   // Loading optimizado para aprovechar las mejoras del backend
-  const { loading, isStale, error: loadingError, startLoading, finishLoading } = useApiLoading();
+  const { isLoading: loading, isStale, error: loadingError, startLoading, finishLoading } = useApiLoading();
   const [filters, setFilters] = useState({
     userId: '',
     startDate: '',
