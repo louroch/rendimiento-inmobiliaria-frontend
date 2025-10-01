@@ -39,3 +39,7 @@ pids
 # OS
 .DS_Store
 Thumbs.db
+
+# Development scripts and temp files
+scripts/
+temp/

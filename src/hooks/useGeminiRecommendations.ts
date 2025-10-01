@@ -55,6 +55,24 @@ export const useGeminiRecommendations = (type: 'general' | 'personal' | 'advance
     } catch (err: any) {
       console.error('Error fetching Gemini recommendations:', err);
       
+      // Manejar errores de autenticación específicamente
+      if (err.message?.includes('403') || err.message?.includes('Token inválido') || err.message?.includes('Forbidden')) {
+        setError('Error de autenticación: Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        return;
+      }
+      
+      // Manejar errores específicos de Gemini
+      if (err.message?.includes('GoogleGenerativeAI Error') || err.message?.includes('gemini-1.5-flash')) {
+        setError('Error en el servicio de IA: El modelo de Gemini no está disponible. Contacta al administrador del sistema.');
+        return;
+      }
+      
+      // Manejar errores de modelo no encontrado
+      if (err.message?.includes('models/gemini-1.5-flash is not found')) {
+        setError('Error de configuración: El modelo de IA no está disponible. El administrador debe verificar la configuración de Gemini.');
+        return;
+      }
+      
       // Si es un error de timeout o conectividad y no hemos agotado los reintentos
       if ((err.message?.includes('Timeout') || err.message?.includes('No se puede conectar')) && retryCount < 2) {
         console.log(`Reintentando... (${retryCount + 1}/3)`);

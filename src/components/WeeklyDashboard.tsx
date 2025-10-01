@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { memo } from 'react';
 import { Card, Metric, Text, Flex, Badge, Table, TableHead, TableHeaderCell, TableBody, TableRow, TableCell, Button } from '@tremor/react';
 import { 
   Calendar, 
@@ -11,43 +11,24 @@ import {
   Download,
   RefreshCw,
   AlertTriangle,
-  Target
+  Target,
+  Clock
 } from 'lucide-react';
-import { WeeklyService, WeeklyFilters } from '../services/weeklyService';
+import { WeeklyFilters } from '../services/weeklyService';
 import { WeeklyStats, WeeklyAgentsStats, WeeklyTeamStats } from '../types/performance';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { useOptimizedWeeklyStats } from '../hooks/useOptimizedWeeklyStats';
 
 interface WeeklyDashboardProps {
   filters?: WeeklyFilters;
   className?: string;
 }
 
-const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, className = '' }) => {
-  const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null);
-  const [agentsStats, setAgentsStats] = useState<WeeklyAgentsStats | null>(null);
-  const [teamStats, setTeamStats] = useState<WeeklyTeamStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchWeeklyData();
-  }, [filters.date, filters.weekNumber, filters.year]);
-
-  const fetchWeeklyData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const { general, agents, team } = await WeeklyService.getAllWeeklyStats(filters);
-      setWeeklyStats(general);
-      setAgentsStats(agents);
-      setTeamStats(team);
-    } catch (err) {
-      console.error('Error obteniendo métricas semanales:', err);
-      setError('Error al cargar las métricas semanales');
-    } finally {
-      setLoading(false);
-    }
-  };
+const WeeklyDashboard: React.FC<WeeklyDashboardProps> = memo(({ filters = {}, className = '' }) => {
+  // Usar cache optimizado para estadísticas semanales
+  const { data, loading, error, isStale, refresh } = useOptimizedWeeklyStats(filters);
+  
+  const { general: weeklyStats, agents: agentsStats, team: teamStats } = data;
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
@@ -74,7 +55,10 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#240046' }}></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#240046' }}></div>
+          <Text className="text-gray-600">Cargando datos optimizados...</Text>
+        </div>
       </div>
     );
   }
@@ -84,6 +68,10 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
       <div className="text-center py-8">
         <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
         <Text className="text-red-600">{error}</Text>
+        <Button onClick={refresh} className="mt-4" variant="secondary">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Reintentar
+        </Button>
       </div>
     );
   }
@@ -113,6 +101,38 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {/* Header con estado del cache */}
+      <div className="flex justify-between items-center">
+        <div>
+          <div className="flex items-center gap-3">
+            <Text className="text-2xl font-bold text-gray-900">Dashboard Semanal</Text>
+            {isStale && (
+              <Badge color="yellow" className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Datos en caché
+              </Badge>
+            )}
+          </div>
+          <Text className="text-gray-600">
+            Métricas optimizadas con cache inteligente
+            {isStale && (
+              <span className="text-yellow-600 text-sm ml-2">
+                (Actualizando en segundo plano...)
+              </span>
+            )}
+          </Text>
+        </div>
+        <Button 
+          onClick={refresh}
+          disabled={loading}
+          variant="secondary"
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Actualizar
+        </Button>
+      </div>
+
       {/* Información de la semana */}
       <Card className="p-4">
         <div className="flex items-center justify-between">
@@ -366,6 +386,8 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = ({ filters = {}, classNa
       </Card>
     </div>
   );
-};
+});
+
+WeeklyDashboard.displayName = 'WeeklyDashboard';
 
 export default WeeklyDashboard;

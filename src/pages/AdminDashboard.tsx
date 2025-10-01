@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { 
@@ -18,6 +18,8 @@ import { Card, Metric, Text, Flex, Button, Select, SelectItem } from '@tremor/re
 import AdminLayout from '../components/AdminLayout';
 import AdminChart from '../components/AdminChart';
 import AdminTable from '../components/AdminTable';
+import OptimizedLoading from '../components/OptimizedLoading';
+import { useApiLoading } from '../hooks/useOptimizedLoading';
 import { formatDateForExport } from '../utils/dateUtils';
 
 interface PerformanceData {
@@ -48,15 +50,17 @@ interface User {
   };
 }
 
-const AdminDashboard: React.FC = () => {
+const AdminDashboard: React.FC = memo(() => {
   const navigate = useNavigate();
   const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'error' | 'unknown'>('unknown');
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  
+  // Loading optimizado para aprovechar las mejoras del backend
+  const { loading, isStale, error: loadingError, startLoading, finishLoading } = useApiLoading();
   const [filters, setFilters] = useState({
     userId: '',
     startDate: '',
@@ -90,7 +94,7 @@ const AdminDashboard: React.FC = () => {
     
     try {
       setIsFetching(true);
-      setLoading(true);
+      startLoading();
       setApiStatus('checking');
       
       // Preparar parámetros para la consulta
@@ -103,7 +107,7 @@ const AdminDashboard: React.FC = () => {
         sortOrder: 'desc'
       };
       
-      // Obtener datos de desempeño
+      // Obtener datos de desempeño (aprovecha cache Redis del backend)
       const performanceResponse = await api.get('/performance', {
         params: queryParams
       });
@@ -115,7 +119,7 @@ const AdminDashboard: React.FC = () => {
       
       setPerformanceData(sortedData);
 
-      // Obtener estadísticas generales
+      // Obtener estadísticas generales (optimizadas con índices de BD)
       const statsResponse = await api.get('/performance/stats/overview', {
         params: {
           userId: filters.userId || undefined,
@@ -126,20 +130,21 @@ const AdminDashboard: React.FC = () => {
       
       setStats(statsResponse.data);
 
-      // Obtener usuarios
+      // Obtener usuarios (cache más frecuente)
       const usersResponse = await api.get('/users');
       setUsers(usersResponse.data.users);
       
       setApiStatus('connected');
       setLastUpdate(new Date());
+      finishLoading();
     } catch (error: any) {
       setApiStatus('error');
       console.error('Error obteniendo datos:', error);
+      finishLoading(error.message || 'Error cargando datos del dashboard');
     } finally {
-      setLoading(false);
       setIsFetching(false);
     }
-  }, [filters.userId, filters.startDate, filters.endDate]);
+  }, [filters.userId, filters.startDate, filters.endDate, startLoading, finishLoading]);
 
   // Cargar datos al montar el componente y cuando cambien los filtros
   useEffect(() => {
@@ -155,22 +160,44 @@ const AdminDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchData, autoSyncEnabled]);
 
-  const handleFilterChange = (key: string, value: string) => {
+  // Memoizar cálculos pesados
+  const memoizedStats = useMemo(() => {
+    if (!stats) return null;
+    
+    return {
+      ...stats,
+      conversionRate: stats.totals.consultasRecibidas > 0 
+        ? (stats.totals.operacionesCerradas / stats.totals.consultasRecibidas * 100).toFixed(1)
+        : '0',
+      avgConsultas: stats.averages.consultasRecibidas.toFixed(1),
+      avgMuestras: stats.averages.muestrasRealizadas.toFixed(1),
+      avgOperaciones: stats.averages.operacionesCerradas.toFixed(1)
+    };
+  }, [stats]);
+
+  const memoizedUserOptions = useMemo(() => {
+    return users.map(user => ({
+      value: user.id,
+      text: user.name
+    }));
+  }, [users]);
+
+  const handleFilterChange = useCallback((key: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
     }));
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({
       userId: '',
       startDate: '',
       endDate: ''
     });
-  };
+  }, []);
 
-  const exportData = () => {
+  const exportData = useCallback(() => {
     const csvContent = [
       ['Fecha', 'Asesor', 'Consultas', 'Muestras', 'Operaciones', 'Captaciones', 'Seguimiento', 'Tokko'],
       ...performanceData.map(record => [
@@ -194,7 +221,7 @@ const AdminDashboard: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }, [performanceData]);
 
   const hasActiveFilters = filters.userId || filters.startDate || filters.endDate;
 
@@ -217,9 +244,9 @@ const AdminDashboard: React.FC = () => {
                 placeholder="Todos los asesores"
               >
                 <SelectItem value="">Todos los asesores</SelectItem>
-                {users.map(user => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name}
+                {memoizedUserOptions.map(user => (
+                  <SelectItem key={user.value} value={user.value}>
+                    {user.text}
                   </SelectItem>
                 ))}
               </Select>
@@ -343,7 +370,43 @@ const AdminDashboard: React.FC = () => {
           </Card>
         )}
 
-        {/* Estadísticas generales */}
+        {/* Loading optimizado */}
+        {loading && (
+          <OptimizedLoading 
+            type="stats" 
+            message="Cargando dashboard optimizado..."
+            showOptimization={true}
+          />
+        )}
+
+        {/* Indicador de datos stale */}
+        {isStale && !loading && (
+          <Card className="p-3 bg-yellow-50 border-yellow-200">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-yellow-600" />
+              <Text className="text-sm text-yellow-800">
+                Datos en caché - Actualizando en segundo plano...
+              </Text>
+            </div>
+          </Card>
+        )}
+
+        {/* Error de loading */}
+        {loadingError && !loading && (
+          <Card className="p-3 bg-red-50 border-red-200">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <Text className="text-sm text-red-800">
+                {loadingError}
+              </Text>
+            </div>
+          </Card>
+        )}
+
+        {/* Contenido principal - solo mostrar si no está cargando */}
+        {!loading && (
+          <>
+            {/* Estadísticas generales */}
         <Card className="p-4 bg-white">
           <div className="flex items-center space-x-2 mb-4">
             <BarChart3 className="h-5 w-5 text-indigo-600" />
@@ -436,9 +499,13 @@ const AdminDashboard: React.FC = () => {
             />
           </div>
         </Card>
+          </>
+        )}
       </div>
     </AdminLayout>
   );
-};
+});
+
+AdminDashboard.displayName = 'AdminDashboard';
 
 export default AdminDashboard;

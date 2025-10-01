@@ -70,6 +70,20 @@ const GeminiRecommendations: React.FC<GeminiRecommendationsProps> = ({
         </div>
         <p className="text-red-600 text-sm mb-4">{error}</p>
         
+        {error.includes('Error de autenticación') && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <p className="text-red-800 text-sm">
+              <strong>🔐 Sesión expirada:</strong> Tu sesión ha expirado. Por favor, inicia sesión nuevamente para continuar.
+            </p>
+            <button
+              onClick={() => window.location.href = '/login'}
+              className="mt-2 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+            >
+              Ir al Login
+            </button>
+          </div>
+        )}
+        
         {error.includes('No se puede conectar') && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
             <p className="text-yellow-800 text-sm">
@@ -82,6 +96,38 @@ const GeminiRecommendations: React.FC<GeminiRecommendationsProps> = ({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
             <p className="text-blue-800 text-sm">
               <strong>⏱️ El servidor tardó demasiado en responder.</strong> Esto puede ser normal para análisis complejos.
+            </p>
+          </div>
+        )}
+        
+        {error.includes('Error en el servicio de IA') && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
+            <p className="text-purple-800 text-sm">
+              <strong>🤖 Error del servicio de IA:</strong> El modelo de Gemini no está disponible. Contacta al administrador del sistema.
+            </p>
+          </div>
+        )}
+        
+        {error.includes('Error de configuración') && (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4">
+            <p className="text-indigo-800 text-sm">
+              <strong>⚙️ Error de configuración:</strong> El modelo de IA no está disponible. El administrador debe verificar la configuración de Gemini.
+            </p>
+            <div className="mt-2 text-xs text-indigo-700">
+              <strong>Posibles soluciones:</strong>
+              <ul className="list-disc list-inside mt-1">
+                <li>Verificar que la API key de Gemini esté configurada correctamente</li>
+                <li>Confirmar que el modelo gemini-1.5-flash esté disponible</li>
+                <li>Revisar la configuración de la API de Google Generative AI</li>
+              </ul>
+            </div>
+          </div>
+        )}
+        
+        {error.includes('500') && !error.includes('Error de autenticación') && !error.includes('Error en el servicio de IA') && !error.includes('Error de configuración') && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+            <p className="text-orange-800 text-sm">
+              <strong>🚨 Error del servidor:</strong> El servidor está experimentando problemas. Intenta nuevamente en unos minutos.
             </p>
           </div>
         )}

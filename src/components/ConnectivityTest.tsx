@@ -38,8 +38,14 @@ const ConnectivityTest: React.FC = () => {
       });
       console.log('✅ Gemini test successful:', geminiResponse.data);
       setTestResults(prev => ({ ...prev, gemini: 'success' }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Gemini test failed:', error);
+      
+      // Si es error de autenticación, mostrar mensaje específico
+      if (error.response?.status === 403 || error.message?.includes('Token inválido')) {
+        console.log('🔐 Error de autenticación detectado en prueba de conectividad');
+      }
+      
       setTestResults(prev => ({ ...prev, gemini: 'error' }));
     }
 
