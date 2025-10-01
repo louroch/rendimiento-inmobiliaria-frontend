@@ -2,7 +2,7 @@
   "name": "rendimiento-inmobiliaria-client",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "/",
   "dependencies": {
     "@tailwindcss/forms": "^0.5.7",
     "@tremor/react": "^3.18.7",
