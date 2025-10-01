@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import Layout from './components/Layout';
 
 // Función para manejar errores de carga de chunks
-const handleChunkError = (error: Error) => {
+const handleChunkError = (error: Error): Promise<never> => {
   console.error('Chunk loading error:', error);
   
   // Si es un error de chunk, intentar recargar la página
@@ -16,6 +16,9 @@ const handleChunkError = (error: Error) => {
     console.log('Chunk loading failed, attempting page reload...');
     window.location.reload();
   }
+  
+  // Retornar una Promise que nunca se resuelve (ya que recargamos la página)
+  return Promise.reject(error);
 };
 
 // Lazy loading de componentes pesados con manejo de errores
