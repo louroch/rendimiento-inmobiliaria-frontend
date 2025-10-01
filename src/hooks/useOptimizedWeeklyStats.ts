@@ -1,4 +1,4 @@
-import { useDataCacheWithParams } from './useDataCache';
+import { useDataCacheWithParams, useDataCache } from './useDataCache';
 import { WeeklyService, WeeklyFilters } from '../services/weeklyService';
 import { WeeklyStats, WeeklyAgentsStats, WeeklyTeamStats } from '../types/performance';
 
