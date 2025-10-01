@@ -84,14 +84,17 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = memo(({ filters = {}, cl
     );
   }
 
-  // Datos para gráficos
-  const agentesChartData = agentsStats.agentes.slice(0, 10).map(agente => ({
-    name: agente.agente.name.split(' ')[0], // Solo primer nombre
-    consultas: agente.semanaActual.consultasRecibidas,
-    muestras: agente.semanaActual.muestrasRealizadas,
-    operaciones: agente.semanaActual.operacionesCerradas,
-    captaciones: agente.semanaActual.numeroCaptaciones || 0
-  }));
+  // Datos para gráficos con validación
+  const agentesChartData = agentsStats.agentes
+    .filter(agente => agente && agente.agente && agente.agente.name) // Filtrar datos válidos
+    .slice(0, 10)
+    .map(agente => ({
+      name: agente.agente.name.split(' ')[0] || 'Sin nombre', // Solo primer nombre con fallback
+      consultas: agente.semanaActual?.consultasRecibidas || 0,
+      muestras: agente.semanaActual?.muestrasRealizadas || 0,
+      operaciones: agente.semanaActual?.operacionesCerradas || 0,
+      captaciones: agente.semanaActual?.numeroCaptaciones || 0
+    }));
 
   const conversionData = [
     { name: 'Consultas → Muestras', value: teamStats.tasasConversion.consultasToMuestras, color: '#3b82f6' },
@@ -343,8 +346,10 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = memo(({ filters = {}, cl
             </TableRow>
           </TableHead>
           <TableBody>
-            {agentsStats.agentes.map((agente, index) => (
-              <TableRow key={agente.agente.id}>
+            {agentsStats.agentes
+              .filter(agente => agente && agente.agente) // Filtrar datos válidos
+              .map((agente, index) => (
+              <TableRow key={agente.agente?.id || index}>
                 <TableCell>
                   <Badge color={index < 3 ? 'blue' : 'gray'} size="sm">
                     #{index + 1}
@@ -352,8 +357,8 @@ const WeeklyDashboard: React.FC<WeeklyDashboardProps> = memo(({ filters = {}, cl
                 </TableCell>
                 <TableCell>
                   <div>
-                    <Text className="font-medium">{agente.agente.name}</Text>
-                    <Text className="text-sm text-gray-500">{agente.agente.email}</Text>
+                    <Text className="font-medium">{agente.agente?.name || 'Sin nombre'}</Text>
+                    <Text className="text-sm text-gray-500">{agente.agente?.email || 'Sin email'}</Text>
                   </div>
                 </TableCell>
                 <TableCell>
