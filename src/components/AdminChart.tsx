@@ -39,6 +39,7 @@ interface AdminChartProps {
 const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
   // Preparar datos para gráficos
   const chartData = data
+    .filter(item => item && item.user) // Filtrar items válidos con user
     .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
     .map(item => ({
       fecha: formatDateForChart(item.fecha),
@@ -46,27 +47,29 @@ const AdminChart: React.FC<AdminChartProps> = ({ data }) => {
       muestras: item.muestrasRealizadas,
       operaciones: item.operacionesCerradas,
       captaciones: item.numeroCaptaciones || 0,
-      asesor: item.user.name
+      asesor: item.user?.name || 'Sin nombre'
     }));
 
   // Agrupar por asesor
-  const asesorData = data.reduce((acc, item) => {
-    const asesor = item.user.name;
-    if (!acc[asesor]) {
-      acc[asesor] = {
-        asesor,
-        consultas: 0,
-        muestras: 0,
-        operaciones: 0,
-        captaciones: 0
-      };
-    }
-    acc[asesor].consultas += item.consultasRecibidas;
-    acc[asesor].muestras += item.muestrasRealizadas;
-    acc[asesor].operaciones += item.operacionesCerradas;
-    acc[asesor].captaciones += item.numeroCaptaciones || 0;
-    return acc;
-  }, {} as Record<string, any>);
+  const asesorData = data
+    .filter(item => item && item.user) // Filtrar items válidos con user
+    .reduce((acc, item) => {
+      const asesor = item.user?.name || 'Sin nombre';
+      if (!acc[asesor]) {
+        acc[asesor] = {
+          asesor,
+          consultas: 0,
+          muestras: 0,
+          operaciones: 0,
+          captaciones: 0
+        };
+      }
+      acc[asesor].consultas += item.consultasRecibidas;
+      acc[asesor].muestras += item.muestrasRealizadas;
+      acc[asesor].operaciones += item.operacionesCerradas;
+      acc[asesor].captaciones += item.numeroCaptaciones || 0;
+      return acc;
+    }, {} as Record<string, any>);
 
   const asesorChartData = Object.values(asesorData);
 
