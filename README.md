@@ -42,3 +42,21 @@ La aplicación se ejecutará en `http://localhost:3000`
 - Recomendaciones con IA (Gemini)
 - Autenticación JWT
 - Diseño responsive con Tailwind CSS
+- **Modo Mantenimiento**: Desactivar temporalmente el acceso de agentes
+
+## 🔧 Modo Mantenimiento
+
+El sistema incluye un modo mantenimiento que permite desactivar temporalmente el acceso de los agentes mientras los administradores mantienen acceso completo.
+
+### Activar/Desactivar
+
+Configura la variable de entorno en Vercel:
+```
+REACT_APP_MAINTENANCE_MODE=true   # Activar
+REACT_APP_MAINTENANCE_MODE=false  # Desactivar
+```
+
+**📖 Instrucciones detalladas:**
+- Ver: `INSTRUCCIONES-MODO-MANTENIMIENTO.txt` (guía simple)
+- Ver: `ACTIVAR-MANTENIMIENTO-RAPIDO.md` (pasos rápidos)
+- Ver: `MODO-MANTENIMIENTO.md` (documentación completa)

@@ -1,0 +1,61 @@
+═══════════════════════════════════════════════════════════════
+  MODO MANTENIMIENTO - SISTEMA RENDIMIENTO INMOBILIARIA
+═══════════════════════════════════════════════════════════════
+
+📌 RESUMEN:
+   Los agentes verán un mensaje de "Sistema Desactivado"
+   Los admins siguen accediendo normalmente
+   Se activa/desactiva con una variable de configuración
+
+═══════════════════════════════════════════════════════════════
+
+🔴 PARA ACTIVAR (Desactivar acceso de agentes):
+
+   1. Ir a: https://vercel.com
+   2. Abrir el proyecto: rendimiento-inmobiliaria-frontend
+   3. Settings → Environment Variables
+   4. Add New:
+      - Key: REACT_APP_MAINTENANCE_MODE
+      - Value: true
+   5. Save
+   6. Ir a Deployments → Click en (...) → Redeploy
+   7. Esperar 1-2 minutos
+
+   ✅ Los agentes ahora verán el mensaje de sistema desactivado
+
+═══════════════════════════════════════════════════════════════
+
+🟢 PARA DESACTIVAR (Permitir acceso de agentes):
+
+   1. Ir a: https://vercel.com
+   2. Settings → Environment Variables
+   3. Buscar: REACT_APP_MAINTENANCE_MODE
+   4. Editar y cambiar a: false
+   5. Save
+   6. Ir a Deployments → Click en (...) → Redeploy
+   7. Esperar 1-2 minutos
+
+   ✅ Los agentes vuelven a tener acceso normal
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE:
+   - Siempre hacer REDEPLOY después de cambiar la variable
+   - Los cambios tardan 1-2 minutos en aplicarse
+   - Si no ven el cambio, recargar con Ctrl+Shift+R
+
+═══════════════════════════════════════════════════════════════
+
+💬 MENSAJE QUE VERÁN LOS AGENTES:
+
+   [Icono de candado]
+   "Sistema Temporalmente Desactivado"
+   
+   El sistema de registro de rendimiento se encuentra
+   temporalmente fuera de servicio.
+   
+   Si necesitas acceso urgente o tienes alguna consulta,
+   por favor contacta con el administrador del sistema.
+
+═══════════════════════════════════════════════════════════════
+
