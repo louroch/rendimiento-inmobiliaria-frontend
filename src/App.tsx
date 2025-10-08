@@ -84,7 +84,7 @@ const ChunkErrorFallback: React.FC = () => (
         Problema de Carga
       </h2>
       <p className="text-gray-600 mb-4">
-        Hubo un problema al cargar este módulo. Esto puede deberse a una actualización en curso o un problema de conectividad.
+        Hubo un problema al cargar este módulo. Esto puede deberse a una actualización en curso.
       </p>
       <button
         onClick={() => window.location.reload()}

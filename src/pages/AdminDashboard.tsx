@@ -113,13 +113,34 @@ const AdminDashboard: React.FC = memo(() => {
       const performanceResponse = await api.get('/performance', {
         params: queryParams
       });
-      
+
+      // Obtener usuarios (cache más frecuente)
+      const usersResponse = await api.get('/users');
+      setUsers(usersResponse.data.users);
+
       // Ordenar los datos en el frontend por createdAt para asegurar el orden correcto
       const sortedData = performanceResponse.data.performance.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-      
-      setPerformanceData(sortedData);
+
+      // Enriquecer registros con datos de usuario cuando falten
+      const usersById: Record<string, { id: string; name: string; email: string }> =
+        (usersResponse.data.users || []).reduce((acc: any, u: any) => {
+          acc[u.id] = { id: u.id, name: u.name, email: u.email };
+          return acc;
+        }, {} as Record<string, { id: string; name: string; email: string }>);
+
+      const enrichedData = sortedData.map((item: any) => {
+        if (item && !item.user) {
+          const candidate = item.userId ? usersById[item.userId] : undefined;
+          if (candidate) {
+            return { ...item, user: candidate };
+          }
+        }
+        return item;
+      });
+
+      setPerformanceData(enrichedData as any);
 
       // Obtener estadísticas generales (optimizadas con índices de BD)
       const statsResponse = await api.get('/performance/stats/overview', {
@@ -131,10 +152,6 @@ const AdminDashboard: React.FC = memo(() => {
       });
       
       setStats(statsResponse.data);
-
-      // Obtener usuarios (cache más frecuente)
-      const usersResponse = await api.get('/users');
-      setUsers(usersResponse.data.users);
       
       setApiStatus('connected');
       setLastUpdate(new Date());
