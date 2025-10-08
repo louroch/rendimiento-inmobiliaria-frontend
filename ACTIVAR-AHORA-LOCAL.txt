@@ -1,0 +1,71 @@
+═══════════════════════════════════════════════════════════
+  🔴 ACTIVAR AHORA EN LOCAL (Para Ver el Cartel)
+═══════════════════════════════════════════════════════════
+
+PASO 1: Crear/Editar el archivo .env.local
+------------------------------------------
+
+En la raíz del proyecto, crea un archivo llamado:
+   .env.local
+
+Y agrega esta línea:
+   REACT_APP_MAINTENANCE_MODE=true
+
+
+PASO 2: Reiniciar el Servidor
+------------------------------
+
+Si el servidor está corriendo, detenlo (Ctrl+C) y vuelve a iniciar:
+   npm start
+
+
+PASO 3: Probar
+--------------
+
+1. Abre http://localhost:3000
+2. Ingresa con un usuario AGENTE
+3. Deberías ver el cartel: "Sistema Dado de Baja"
+
+
+PASO 4: Verificar que Admin sigue funcionando
+----------------------------------------------
+
+1. Abre otra pestaña en modo incógnito
+2. Ingresa con un usuario ADMIN
+3. El admin debe poder acceder normalmente
+
+
+═══════════════════════════════════════════════════════════
+  🟢 DESACTIVAR (Volver a Normal)
+═══════════════════════════════════════════════════════════
+
+En .env.local cambiar a:
+   REACT_APP_MAINTENANCE_MODE=false
+
+Reiniciar: npm start
+
+
+═══════════════════════════════════════════════════════════
+  ☁️ ACTIVAR EN PRODUCCIÓN (Vercel)
+═══════════════════════════════════════════════════════════
+
+1. Ir a: https://vercel.com
+2. Tu proyecto → Settings → Environment Variables
+3. Add New:
+   Key:   REACT_APP_MAINTENANCE_MODE
+   Value: true
+4. Save
+5. Deployments → (...) → Redeploy
+6. Esperar 2 minutos
+
+═══════════════════════════════════════════════════════════
+
+¿NO NECESITAS NADA DEL BACKEND? 
+NO, esto funciona 100% en el frontend.
+
+El backend NO sabe que esto está pasando.
+El frontend simplemente muestra el cartel cuando detecta que
+la variable está en 'true' y el usuario es un agente.
+
+═══════════════════════════════════════════════════════════
+

@@ -18,7 +18,7 @@ const MaintenanceMode: React.FC = () => {
 
           {/* Título */}
           <h1 className="text-3xl font-bold text-gray-900 mb-3">
-            Sistema Temporalmente Desactivado
+            Sistema Dado de Baja
           </h1>
 
           {/* Mensaje */}
@@ -26,12 +26,12 @@ const MaintenanceMode: React.FC = () => {
             <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
               <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-left text-sm text-amber-800">
-                El sistema de registro de rendimiento se encuentra temporalmente fuera de servicio.
+                El sistema de registro de rendimiento ha sido dado de baja temporalmente.
               </p>
             </div>
             
             <p className="text-gray-600 text-sm leading-relaxed">
-              Si necesitas acceso urgente o tienes alguna consulta, por favor contacta con el administrador del sistema.
+              Si tienes alguna consulta, por favor contacta con el administrador del sistema.
             </p>
           </div>
 
